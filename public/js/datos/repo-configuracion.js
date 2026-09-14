@@ -8,3 +8,7 @@ export function obtenerConfiguracion(distrito) {
 export function guardarConfiguracion(distrito, cfg) {
   return db.collection("configuracion").doc(distrito).set(cfg);
 }
+
+export function listarDistritos() {
+  return db.collection("configuracion").get();
+}

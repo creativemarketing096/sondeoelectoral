@@ -6,12 +6,14 @@ const params = new URLSearchParams(location.search);
 const VISTA = params.get("vista") || "participante";
 const DISTRITO = (params.get("distrito") || "").toUpperCase();
 
-$("#barraMeta").textContent = DISTRITO ? `Distrito: ${DISTRITO}` : "Falta el parámetro ?distrito= en el link";
+$("#barraMeta").textContent = VISTA === "indice" ? "Panel de administración"
+  : DISTRITO ? `Distrito: ${DISTRITO}` : "Falta el parámetro ?distrito= en el link";
 
 const VISTAS = {
   participante: () => import("./vistas/participante.js"),
   config: () => import("./vistas/config.js"),
-  dashboard: () => import("./vistas/dashboard.js")
+  dashboard: () => import("./vistas/dashboard.js"),
+  indice: () => import("./vistas/indice.js")
 };
 
 const cargarVista = VISTAS[VISTA] || VISTAS.participante;

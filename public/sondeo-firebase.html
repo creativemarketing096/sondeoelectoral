@@ -95,6 +95,7 @@
      ============================================================ -->
 <div id="vistaConfig" class="oculto">
   <div class="titulo" id="tituloConfigDistrito">Configurar distrito</div>
+  <p class="aviso centro"><a class="mini chico" href="?vista=indice">← Todos los distritos</a></p>
 
   <div class="bloque">
     <h3>Padrón habilitado (quién puede votar)</h3>
@@ -146,6 +147,7 @@
      ============================================================ -->
 <div id="vistaDashboard" class="oculto">
   <div class="titulo">Panel en tiempo real</div>
+  <p class="aviso centro"><a class="mini chico" href="?vista=indice">← Todos los distritos</a></p>
   <div class="kpi">
     <div class="c"><b id="kTotal">0</b><span>Participaron</span></div>
   </div>
@@ -154,6 +156,23 @@
   <canvas id="chEdad" height="140"></canvas>
   <canvas id="chSexo" height="140"></canvas>
   <canvas id="chLocalidad" height="180"></canvas>
+
+  <div class="bloque">
+    <h3>Participantes</h3>
+    <table class="tabla" id="tablaParticipantes"><tbody></tbody></table>
+  </div>
+</div>
+
+<!-- ============================================================
+     VISTA: ÍNDICE  (link: pagina.html?vista=indice) — panel admin
+     ============================================================ -->
+<div id="vistaIndice" class="oculto">
+  <div class="titulo">Panel de administración</div>
+  <p class="aviso centro">Guardá este link, es tu acceso a todo:<br><b id="indiceLinkPropio"></b></p>
+  <div class="bloque">
+    <h3>Distritos configurados</h3>
+    <table class="tabla" id="tablaDistritos"><tbody></tbody></table>
+  </div>
 </div>
 
 <script type="module" src="js/app.js"></script>

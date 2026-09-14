@@ -54,12 +54,14 @@ export function iniciar(distrito) {
   function pintarIntendentes() {
     const cards = cfg.intendentes.map((c, i) =>
       `<button class="tarjeta" data-i="${i}" data-sel="0" style="background:${c.color};color:${claro(c.color)}">
-        <span class="marca">ELEGIDO</span><span class="rotulo">${c.partido}</span>
+        <span class="marca">ELEGIDO</span>
+        <span class="rotulo">${c.partido}</span>
         <span class="foto">${retrato(c.nombre, c.foto)}</span>
-        <span class="pie">Lista ${c.lista}<br><b>${c.nombre}</b></span></button>`);
+        <span class="listaNum">LISTA<b>${c.lista}</b></span>
+        <span class="pie">${c.nombre}</span></button>`);
     cards.push(`<button class="tarjeta" data-i="-1" data-sel="0" style="background:#fff">
-        <span class="marca">ELEGIDO</span><span class="rotulo">VOTO EN BLANCO</span><span class="foto"></span>
-        <span class="pie"><b>Voto en blanco</b></span></button>`);
+        <span class="marca">ELEGIDO</span>
+        <span class="pie" style="margin:auto;font-size:16px">VOTO EN BLANCO</span></button>`);
     $("#gIntendentes").innerHTML = cards.join("");
   }
   function pintarListas() {
@@ -138,6 +140,7 @@ export function iniciar(distrito) {
     try {
       await guardarRespuesta(R.ci, {
         distrito,
+        nombre: R.padron.nombre || null,
         localidad: R.padron.localidad || null,
         edad: R.edad, sexo: R.sexo,
         intendente_lista: R.intendente.lista, intendente_nombre: R.intendente.nombre,
