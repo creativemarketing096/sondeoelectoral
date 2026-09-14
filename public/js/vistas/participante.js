@@ -125,7 +125,7 @@ export function iniciar(distrito) {
     if (paso === 0) return verificarCedula();
     if (paso === 3) { irA(4); pintarListas(); return; }
     if (paso === 6) return enviar();
-    irA(paso + 1, paso + 1 === 3 ? pintarIntendentes : null);
+    irA(paso + 1, paso + 1 === 3 ? pintarIntendentes : paso + 1 === 6 ? armarPreview : null);
   });
   $("#pvAtras").addEventListener("click", () => {
     if (paso === 4 && R.lista === 0) return;
