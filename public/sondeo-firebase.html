@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es-PY">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sondeo Municipales 2026</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+<link rel="stylesheet" href="css/sondeo.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="sello">2026<small>SONDEO</small></div>
+  <div class="meta" id="barraMeta">—</div>
+</header>
+
+<!-- ============================================================
+     ACCESO ADMIN  (gate para vista=config y vista=dashboard)
+     ============================================================ -->
+<div id="loginAdmin" class="oculto" style="position:fixed;inset:0;background:rgba(20,24,29,.92);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div class="bloque" style="max-width:340px;width:100%;margin:0">
+    <h3>Acceso al panel</h3>
+    <div class="campo"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username"></div>
+    <div class="campo"><label for="loginPass">Contraseña</label><input id="loginPass" type="password" autocomplete="current-password"></div>
+    <button class="mini oscuro" id="loginBtn" style="width:100%">Ingresar</button>
+    <p class="aviso malo oculto" id="loginError"></p>
+  </div>
+</div>
+
+<!-- ============================================================
+     VISTA: PARTICIPANTE  (link: pagina.html?distrito=HORQUETA)
+     ============================================================ -->
+<div id="vistaParticipante">
+
+  <section class="pantalla activa" id="pv0">
+    <div class="titulo">Encuesta ciudadana</div>
+    <p class="bajada" id="distritoTitulo">Cargando distrito…</p>
+    <div class="campo">
+      <label for="ci">Número de cédula</label>
+      <input id="ci" inputmode="numeric" autocomplete="off" placeholder="Ej.: 5779795">
+    </div>
+    <p class="aviso" id="ciEstado"></p>
+  </section>
+
+  <section class="pantalla" id="pv1">
+    <div class="titulo">Antes de empezar</div>
+    <div class="consent">
+      <p><b>Ubicación (opcional).</b> Para confirmar que tu respuesta corresponde a este distrito, tu navegador te va a pedir permiso de ubicación. Podés continuar aunque no lo compartas.</p>
+      <button class="mini oscuro" id="pedirUbicacion">Compartir ubicación</button>
+      <span class="aviso" id="ubicacionEstado">Todavía no compartida.</span>
+    </div>
+    <div class="consent">
+      <p><b>Foto de verificación (opcional).</b> Sirve para descartar que alguien vote con la cédula de otra persona. Solo la ve el equipo del sondeo, nunca se publica.</p>
+      <input type="file" accept="image/*" capture="user" id="fotoInput" class="oculto">
+      <button class="mini oscuro" id="pedirFoto">Tomar foto de verificación</button>
+      <span class="aviso" id="fotoEstado">Todavía no tomada.</span>
+    </div>
+  </section>
+
+  <section class="pantalla" id="pv2">
+    <div class="titulo">Registro del participante</div>
+    <div class="campo"><label>Edad</label><div class="chips" id="chEdad"></div></div>
+    <div class="campo"><label>Sexo</label><div class="chips" id="chSexo"></div></div>
+  </section>
+
+  <section class="pantalla" id="pv3">
+    <div class="titulo">Candidatos a Intendente Municipal</div>
+    <div class="grilla" id="gIntendentes"></div>
+  </section>
+
+  <section class="pantalla" id="pv4">
+    <div class="titulo">Listas a Junta Municipal</div>
+    <div class="grilla listas" id="gListas"></div>
+  </section>
+
+  <section class="pantalla" id="pv5">
+    <div class="titulo" id="tituloConcejales">Candidatos a Junta Municipal</div>
+    <div class="grilla concejales" id="gConcejales"></div>
+  </section>
+
+  <section class="pantalla" id="pv6">
+    <div class="titulo">Revisá tu elección</div>
+    <div class="boletin">
+      <h2>Previsualización</h2>
+      <div class="cuerpo">
+        <div class="celda"><h3>Intendente</h3><div class="val" id="prevIntendente">—</div></div>
+        <div class="celda"><h3>Junta Municipal</h3><div class="val" id="prevConcejal">—</div></div>
+      </div>
+    </div>
+    <p class="aviso centro">¿Está bien así? Una vez confirmado no se puede modificar.</p>
+  </section>
+
+  <section class="pantalla" id="pv7">
+    <div class="titulo">¡Gracias por participar!</div>
+    <p class="bajada">Tu respuesta quedó registrada de forma anónima en el resultado agregado.</p>
+  </section>
+
+  <nav class="acciones" id="accionesParticipante">
+    <button class="btn secundario" id="pvAtras">Atrás</button>
+    <button class="btn primario" id="pvSiguiente" disabled>Continuar</button>
+  </nav>
+</div>
+
+<!-- ============================================================
+     VISTA: CONFIGURACIÓN  (link: pagina.html?vista=config&distrito=CONCEPCION)
+     ============================================================ -->
+<div id="vistaConfig" class="oculto">
+  <div class="titulo" id="tituloConfigDistrito">Configurar distrito</div>
+
+  <div class="bloque">
+    <h3>Padrón habilitado (quién puede votar)</h3>
+    <p class="aviso">Subí el Excel del padrón de este distrito (columnas CEDULA, NOMBRE_DIS, DESCRI_L, SEXO, EDAD…). Solo las cédulas cargadas acá van a poder participar en su distrito.</p>
+    <div class="fila">
+      <div class="campo"><label>Archivo del padrón (.xlsx)</label><input id="padronArchivo" type="file" accept=".xlsx,.xls,.csv"></div>
+      <button class="mini oscuro" id="padronImportar">Leer archivo</button>
+    </div>
+    <p class="aviso" id="padronEstado"></p>
+  </div>
+
+  <div class="bloque">
+    <h3>Candidatos a intendente</h3>
+    <div class="fila">
+      <div class="campo" style="flex:0 0 80px"><label>Lista</label><input id="cfLista"></div>
+      <div class="campo"><label>Agrupación</label><input id="cfPartido"></div>
+    </div>
+    <div class="fila" style="margin-top:10px">
+      <div class="campo"><label>Candidato</label><input id="cfNombre"></div>
+      <div class="campo" style="flex:0 0 70px"><label>Color</label><input id="cfColor" type="color" value="#e30613"></div>
+    </div>
+    <div class="fila" style="margin-top:10px">
+      <div class="campo"><label>Foto (subir a Storage)</label><input id="cfFoto" type="file" accept="image/*"></div>
+      <button class="mini oscuro" id="addIntendente">Agregar</button>
+    </div>
+    <table class="tabla" id="tablaIntendentes" style="margin-top:12px"><tbody></tbody></table>
+  </div>
+
+  <div class="bloque">
+    <h3>Listas a Junta Municipal</h3>
+    <div class="fila">
+      <div class="campo" style="flex:0 0 80px"><label>Lista</label><input id="cjLista"></div>
+      <div class="campo"><label>Agrupación</label><input id="cjNombre"></div>
+      <div class="campo" style="flex:0 0 70px"><label>Color</label><input id="cjColor" type="color" value="#e30613"></div>
+    </div>
+    <div class="campo" style="margin-top:10px"><label>Candidatos a concejal, uno por línea</label><textarea id="cjCandidatos"></textarea></div>
+    <div class="campo" style="margin-top:10px"><label>Fotos (opcional, mismo orden que los nombres)</label><input id="cjFotos" type="file" accept="image/*" multiple></div>
+    <button class="mini oscuro" id="addLista">Agregar lista</button>
+    <table class="tabla" id="tablaListas" style="margin-top:12px"><tbody></tbody></table>
+  </div>
+  <p class="aviso" id="estadoConfig"></p>
+
+  <input type="file" accept="image/*" id="cfFotoExistente" class="oculto">
+  <input type="file" accept="image/*" id="cjFotoExistente" class="oculto">
+</div>
+
+<!-- ============================================================
+     VISTA: DASHBOARD  (link: pagina.html?vista=dashboard&distrito=CONCEPCION)
+     ============================================================ -->
+<div id="vistaDashboard" class="oculto">
+  <div class="titulo">Panel en tiempo real</div>
+  <div class="kpi">
+    <div class="c"><b id="kTotal">0</b><span>Participaron</span></div>
+    <div class="c"><b id="kUbic">0</b><span>Con ubicación</span></div>
+    <div class="c"><b id="kFoto">0</b><span>Con foto de verificación</span></div>
+  </div>
+  <canvas id="chIntendente" height="180"></canvas>
+  <canvas id="chConcejo" height="180"></canvas>
+  <canvas id="chEdad" height="140"></canvas>
+  <canvas id="chSexo" height="140"></canvas>
+  <canvas id="chLocalidad" height="180"></canvas>
+
+  <div class="bloque">
+    <h3>Revisión antifraude</h3>
+    <p class="aviso">Filas con foto o ubicación compartida, para descartar cédulas usadas por terceros. Nadie fuera del equipo ve esto.</p>
+    <table class="tabla" id="tablaFraude"><tbody></tbody></table>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

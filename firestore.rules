@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function esAdmin() { return request.auth != null; }
+
+    // Candidatos/listas de cada distrito: lectura pública (la usa el participante),
+    // escritura solo el admin logueado.
+    match /configuracion/{distrito} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+
+    // Padrón (quién puede votar): nadie fuera del admin lo lee ni lo escribe.
+    // El participante nunca consulta esta colección directo por su cuenta;
+    // solo el propio backend de reglas la usa para validar "respuestas".
+    match /padron/{cedula} {
+      allow read, write: if esAdmin();
+    }
+
+    // Respuestas del sondeo: solo el admin puede leerlas (dashboard).
+    // Un participante puede crear SU respuesta una sola vez, y solo si
+    // su cédula está en el padrón. Nunca se puede editar ni borrar.
+    match /respuestas/{cedula} {
+      allow read: if esAdmin();
+      allow create: if !exists(/databases/$(database)/documents/respuestas/$(cedula))
+                    && exists(/databases/$(database)/documents/padron/$(cedula))
+                    && get(/databases/$(database)/documents/padron/$(cedula)).data.distrito == request.resource.data.distrito;
+      allow update, delete: if false;
+    }
+  }
+}
