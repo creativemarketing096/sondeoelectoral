@@ -47,42 +47,27 @@
   </section>
 
   <section class="pantalla" id="pv1">
-    <div class="titulo">Antes de empezar</div>
-    <div class="consent">
-      <p><b>Ubicación (opcional).</b> Para confirmar que tu respuesta corresponde a este distrito, tu navegador te va a pedir permiso de ubicación. Podés continuar aunque no lo compartas.</p>
-      <button class="mini oscuro" id="pedirUbicacion">Compartir ubicación</button>
-      <span class="aviso" id="ubicacionEstado">Todavía no compartida.</span>
-    </div>
-    <div class="consent">
-      <p><b>Foto de verificación (opcional).</b> Sirve para descartar que alguien vote con la cédula de otra persona. Solo la ve el equipo del sondeo, nunca se publica.</p>
-      <input type="file" accept="image/*" capture="user" id="fotoInput" class="oculto">
-      <button class="mini oscuro" id="pedirFoto">Tomar foto de verificación</button>
-      <span class="aviso" id="fotoEstado">Todavía no tomada.</span>
-    </div>
-  </section>
-
-  <section class="pantalla" id="pv2">
     <div class="titulo">Registro del participante</div>
     <div class="campo"><label>Edad</label><div class="chips" id="chEdad"></div></div>
     <div class="campo"><label>Sexo</label><div class="chips" id="chSexo"></div></div>
   </section>
 
-  <section class="pantalla" id="pv3">
+  <section class="pantalla" id="pv2">
     <div class="titulo">Candidatos a Intendente Municipal</div>
     <div class="grilla" id="gIntendentes"></div>
   </section>
 
-  <section class="pantalla" id="pv4">
+  <section class="pantalla" id="pv3">
     <div class="titulo">Listas a Junta Municipal</div>
     <div class="grilla listas" id="gListas"></div>
   </section>
 
-  <section class="pantalla" id="pv5">
+  <section class="pantalla" id="pv4">
     <div class="titulo" id="tituloConcejales">Candidatos a Junta Municipal</div>
     <div class="grilla concejales" id="gConcejales"></div>
   </section>
 
-  <section class="pantalla" id="pv6">
+  <section class="pantalla" id="pv5">
     <div class="titulo">Revisá tu elección</div>
     <div class="boletin">
       <h2>Previsualización</h2>
@@ -94,7 +79,7 @@
     <p class="aviso centro">¿Está bien así? Una vez confirmado no se puede modificar.</p>
   </section>
 
-  <section class="pantalla" id="pv7">
+  <section class="pantalla" id="pv6">
     <div class="titulo">¡Gracias por participar!</div>
     <p class="bajada">Tu respuesta quedó registrada de forma anónima en el resultado agregado.</p>
   </section>
@@ -163,20 +148,12 @@
   <div class="titulo">Panel en tiempo real</div>
   <div class="kpi">
     <div class="c"><b id="kTotal">0</b><span>Participaron</span></div>
-    <div class="c"><b id="kUbic">0</b><span>Con ubicación</span></div>
-    <div class="c"><b id="kFoto">0</b><span>Con foto de verificación</span></div>
   </div>
   <canvas id="chIntendente" height="180"></canvas>
   <canvas id="chConcejo" height="180"></canvas>
   <canvas id="chEdad" height="140"></canvas>
   <canvas id="chSexo" height="140"></canvas>
   <canvas id="chLocalidad" height="180"></canvas>
-
-  <div class="bloque">
-    <h3>Revisión antifraude</h3>
-    <p class="aviso">Filas con foto o ubicación compartida, para descartar cédulas usadas por terceros. Nadie fuera del equipo ve esto.</p>
-    <table class="tabla" id="tablaFraude"><tbody></tbody></table>
-  </div>
 </div>
 
 <script type="module" src="js/app.js"></script>

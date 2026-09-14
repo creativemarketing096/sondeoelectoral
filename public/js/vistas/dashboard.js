@@ -20,8 +20,6 @@ export async function iniciar(distrito) {
   suscribirRespuestas(distrito, snap => {
     const filas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     $("#kTotal").textContent = filas.length;
-    $("#kUbic").textContent = filas.filter(f => f.ubicacion).length;
-    $("#kFoto").textContent = filas.filter(f => f.foto_url).length;
 
     const cuenta = (arr, campo) => { const o = {}; arr.forEach(f => { const v = f[campo] || "NS/NC"; o[v] = (o[v] || 0) + 1; }); return o; };
 
@@ -41,14 +39,5 @@ export async function iniciar(distrito) {
 
     const cl = cuenta(filas, "localidad");
     barChart("#chLocalidad", Object.keys(cl), Object.values(cl), "#4a4a4a");
-
-    const verif = filas.filter(f => f.foto_url || f.ubicacion);
-    $("#tablaFraude").querySelector("tbody").innerHTML = verif.length
-      ? `<tr><th>Cédula</th><th>Foto</th><th>Ubicación</th><th>Localidad</th></tr>` + verif.map(f =>
-          `<tr><td>${f.id}</td>
-               <td>${f.foto_url ? `<img class="miniatura" src="${f.foto_url}" onclick="window.open('${f.foto_url}')">` : "—"}</td>
-               <td>${f.ubicacion ? `${f.ubicacion.lat.toFixed(4)}, ${f.ubicacion.lng.toFixed(4)}` : "—"}</td>
-               <td>${f.localidad || "—"}</td></tr>`).join("")
-      : `<tr><td class="centro">Sin registros de verificación todavía.</td></tr>`;
   });
 }

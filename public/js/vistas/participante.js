@@ -2,10 +2,9 @@ import { $, claro, retrato } from "../util/dom.js";
 import { OPCIONES } from "../dominio/opciones.js";
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
 import { obtenerPadron, obtenerRespuestaExistente, guardarRespuesta } from "../datos/repo-respuestas.js";
-import { subirArchivo } from "../datos/repo-storage.js";
 
 export function iniciar(distrito) {
-  let cfg = null, R = { ubicacion: null, foto_url: null };
+  let cfg = null, R = {};
   let paso = 0;
 
   obtenerConfiguracion(distrito).then(doc => {
@@ -31,21 +30,6 @@ export function iniciar(distrito) {
     validar();
   });
 
-  $("#pedirUbicacion").addEventListener("click", () => {
-    if (!navigator.geolocation) { $("#ubicacionEstado").textContent = "Tu navegador no soporta ubicación."; return; }
-    navigator.geolocation.getCurrentPosition(
-      pos => { R.ubicacion = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-               $("#ubicacionEstado").textContent = "Ubicación compartida ✓"; },
-      () => { $("#ubicacionEstado").textContent = "No se compartió la ubicación."; }
-    );
-  });
-  $("#pedirFoto").addEventListener("click", () => $("#fotoInput").click());
-  $("#fotoInput").addEventListener("change", e => {
-    const f = e.target.files[0]; if (!f) return;
-    R.fotoArchivo = f;
-    $("#fotoEstado").textContent = "Foto lista ✓";
-  });
-
   $("#gIntendentes").addEventListener("click", e => {
     const b = e.target.closest(".tarjeta"); if (!b) return;
     [...$("#gIntendentes").children].forEach(c => c.dataset.sel = "0"); b.dataset.sel = "1";
@@ -56,8 +40,8 @@ export function iniciar(distrito) {
   $("#gListas").addEventListener("click", e => {
     const b = e.target.closest(".lista"); if (!b) return;
     R.lista = +b.dataset.lista; R.concejal = null;
-    if (R.lista === 0) return irA(6, armarPreview);
-    pintarConcejales(R.lista); irA(5);
+    if (R.lista === 0) return irA(5, armarPreview);
+    pintarConcejales(R.lista); irA(4);
   });
   $("#gConcejales").addEventListener("click", e => {
     const b = e.target.closest(".concejal"); if (!b) return;
@@ -106,30 +90,29 @@ export function iniciar(distrito) {
 
   function completo() {
     if (paso === 0) return R.ci && R.ci.length >= 6;
-    if (paso === 1) return true;
-    if (paso === 2) return R.edad && R.sexo;
-    if (paso === 3) return !!R.intendente;
-    if (paso === 4) return R.lista !== null && R.lista !== undefined;
-    if (paso === 5) return !!R.concejal;
+    if (paso === 1) return R.edad && R.sexo;
+    if (paso === 2) return !!R.intendente;
+    if (paso === 3) return R.lista !== null && R.lista !== undefined;
+    if (paso === 4) return !!R.concejal;
     return true;
   }
   function validar() {
     const b = $("#pvSiguiente");
-    b.textContent = paso === 0 ? "Verificar cédula" : paso === 6 ? "Confirmar y enviar" : paso === 7 ? "" : "Continuar";
+    b.textContent = paso === 0 ? "Verificar cédula" : paso === 5 ? "Confirmar y enviar" : paso === 6 ? "" : "Continuar";
     b.disabled = !completo();
-    $("#pvAtras").style.display = (paso === 0 || paso >= 7) ? "none" : "";
-    $("#accionesParticipante").style.display = paso === 7 ? "none" : "flex";
+    $("#pvAtras").style.display = (paso === 0 || paso >= 6) ? "none" : "";
+    $("#accionesParticipante").style.display = paso === 6 ? "none" : "flex";
   }
 
   $("#pvSiguiente").addEventListener("click", async () => {
     if (paso === 0) return verificarCedula();
-    if (paso === 3) { irA(4); pintarListas(); return; }
-    if (paso === 6) return enviar();
-    irA(paso + 1, paso + 1 === 3 ? pintarIntendentes : paso + 1 === 6 ? armarPreview : null);
+    if (paso === 2) { irA(3); pintarListas(); return; }
+    if (paso === 5) return enviar();
+    irA(paso + 1, paso + 1 === 2 ? pintarIntendentes : paso + 1 === 5 ? armarPreview : null);
   });
   $("#pvAtras").addEventListener("click", () => {
-    if (paso === 4 && R.lista === 0) return;
-    if (paso === 6 && R.lista === 0) return irA(4);
+    if (paso === 3 && R.lista === 0) return;
+    if (paso === 5 && R.lista === 0) return irA(3);
     irA(Math.max(0, paso - 1));
   });
 
@@ -153,8 +136,6 @@ export function iniciar(distrito) {
   async function enviar() {
     $("#pvSiguiente").disabled = true; $("#pvSiguiente").textContent = "Enviando…";
     try {
-      let foto_url = null;
-      if (R.fotoArchivo) foto_url = await subirArchivo(`verificacion/${distrito}/${R.ci}.jpg`, R.fotoArchivo);
       await guardarRespuesta(R.ci, {
         distrito,
         localidad: R.padron.localidad || null,
@@ -162,10 +143,9 @@ export function iniciar(distrito) {
         intendente_lista: R.intendente.lista, intendente_nombre: R.intendente.nombre,
         junta_lista: R.lista,
         concejal_opcion: R.concejal ? R.concejal.op : null,
-        concejal_nombre: R.concejal ? R.concejal.nombre : null,
-        ubicacion: R.ubicacion, foto_url
+        concejal_nombre: R.concejal ? R.concejal.nombre : null
       });
-      irA(7);
+      irA(6);
     } catch (err) {
       alert("No se pudo enviar. Revisá tu conexión.");
       $("#pvSiguiente").disabled = false; $("#pvSiguiente").textContent = "Confirmar y enviar";
