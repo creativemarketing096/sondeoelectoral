@@ -27,10 +27,26 @@ export async function obtenerResultadosPublicos(distrito) {
   return data;
 }
 
+/* Supabase/PostgREST corta cada select en 1000 filas por default (db-max-rows).
+   Sin paginar, kTotal y todos los gráficos del dashboard quedaban pegados en
+   1000 apenas un distrito superaba esa cifra. Se trae todo en páginas de 1000. */
+async function traerTodasLasRespuestas(distrito) {
+  const TAMANIO = 1000;
+  let desde = 0, todas = [];
+  while (true) {
+    const { data, error } = await supabase.from("respuestas").select("*").eq("distrito", distrito).range(desde, desde + TAMANIO - 1);
+    if (error) throw error;
+    todas = todas.concat(data);
+    if (data.length < TAMANIO) break;
+    desde += TAMANIO;
+  }
+  return todas;
+}
+
 export function suscribirRespuestas(distrito, cb) {
   const emitir = async () => {
-    const { data, error } = await supabase.from("respuestas").select("*").eq("distrito", distrito);
-    if (!error) cb({ docs: data.map(r => ({ id: r.cedula, data: () => r })) });
+    const data = await traerTodasLasRespuestas(distrito);
+    cb({ docs: data.map(r => ({ id: r.cedula, data: () => r })) });
   };
   emitir();
   const canal = supabase
