@@ -9,7 +9,7 @@ export function iniciar(distrito) {
 
   /* Links con &especial=1 piden un código antes de mostrar la encuesta.
      Un código válido habilita a este dispositivo a saltarse el límite de
-     4 cédulas (para un puesto supervisado donde vota un grupo de gente
+     2 cédulas (para un puesto supervisado donde vota un grupo de gente
      desde el mismo celular/computadora). Se recuerda por pestaña. */
   const especial = new URLSearchParams(location.search).get("especial") === "1";
   let codigoEspecial = especial ? sessionStorage.getItem(`codigoEspecial_${distrito}`) : null;

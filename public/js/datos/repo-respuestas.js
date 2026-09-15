@@ -21,7 +21,7 @@ export async function enviarVoto(v) {
 }
 
 /* Código de acceso especial: habilita a un dispositivo puntual (hasta el
-   máximo configurado, típicamente 2) a saltarse el límite de 4 cédulas
+   máximo configurado, típicamente 2) a saltarse el límite de 2 cédulas
    por dispositivo, solo dentro del distrito al que está atado el código. */
 export async function validarCodigoEspecial(codigo, distrito, dispositivo) {
   const { data, error } = await supabase.rpc("validar_codigo_especial", { p_codigo: codigo, p_distrito: distrito, p_dispositivo: dispositivo });
