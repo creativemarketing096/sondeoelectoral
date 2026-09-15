@@ -3,8 +3,8 @@ import { supabase } from "../supabase-init.js";
 /* Nadie lee padron/respuestas directo — todo pasa por estas dos funciones
    de Postgres (verificar_elegibilidad / enviar_voto). El servidor saca
    nombre/localidad/edad/sexo del padrón oficial, nunca los pide el cliente. */
-export async function verificarElegibilidad(cedula, distrito, dispositivo) {
-  const { data, error } = await supabase.rpc("verificar_elegibilidad", { p_cedula: cedula, p_distrito: distrito, p_dispositivo: dispositivo });
+export async function verificarElegibilidad(cedula, distrito, dispositivo, codigo) {
+  const { data, error } = await supabase.rpc("verificar_elegibilidad", { p_cedula: cedula, p_distrito: distrito, p_dispositivo: dispositivo, p_codigo: codigo || null });
   if (error) throw error;
   return data[0];
 }
@@ -14,8 +14,17 @@ export async function enviarVoto(v) {
     p_cedula: v.cedula, p_distrito: v.distrito,
     p_intendente_lista: v.intendente_lista, p_intendente_nombre: v.intendente_nombre,
     p_junta_lista: v.junta_lista, p_concejal_opcion: v.concejal_opcion, p_concejal_nombre: v.concejal_nombre,
-    p_dispositivo: v.dispositivo
+    p_dispositivo: v.dispositivo, p_codigo: v.codigo || null
   });
+  if (error) throw error;
+  return data;
+}
+
+/* Código de acceso especial: habilita a un dispositivo puntual (hasta el
+   máximo configurado, típicamente 2) a saltarse el límite de 4 cédulas
+   por dispositivo, solo dentro del distrito al que está atado el código. */
+export async function validarCodigoEspecial(codigo, distrito, dispositivo) {
+  const { data, error } = await supabase.rpc("validar_codigo_especial", { p_codigo: codigo, p_distrito: distrito, p_dispositivo: dispositivo });
   if (error) throw error;
   return data;
 }

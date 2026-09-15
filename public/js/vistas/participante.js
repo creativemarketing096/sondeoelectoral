@@ -1,18 +1,56 @@
 import { $, claro, retrato, idDispositivo } from "../util/dom.js";
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
-import { verificarElegibilidad, enviarVoto } from "../datos/repo-respuestas.js";
+import { verificarElegibilidad, enviarVoto, validarCodigoEspecial } from "../datos/repo-respuestas.js";
 
 export function iniciar(distrito) {
   let cfg = null, R = {};
   let paso = 0;
   let cerrado = false;
 
-  obtenerConfiguracion(distrito).then(doc => {
+  /* Links con &especial=1 piden un código antes de mostrar la encuesta.
+     Un código válido habilita a este dispositivo a saltarse el límite de
+     4 cédulas (para un puesto supervisado donde vota un grupo de gente
+     desde el mismo celular/computadora). Se recuerda por pestaña. */
+  const especial = new URLSearchParams(location.search).get("especial") === "1";
+  let codigoEspecial = especial ? sessionStorage.getItem(`codigoEspecial_${distrito}`) : null;
+
+  async function iniciarCarga() {
+    if (especial && !codigoEspecial) codigoEspecial = await pedirCodigoEspecial();
+    const doc = await obtenerConfiguracion(distrito);
     if (!doc.exists) { $("#distritoTitulo").textContent = "Este distrito todavía no tiene el simulador cargado."; return; }
     cfg = doc.data();
     $("#distritoTitulo").textContent = `¿A quién votarías en ${distrito}?`;
     iniciarTemporizador(cfg.cierre);
-  });
+  }
+  iniciarCarga();
+
+  function pedirCodigoEspecial() {
+    const cont = $("#gateEspecial"), input = $("#codigoEspecial"), btn = $("#codigoEspecialBtn"), err = $("#codigoEspecialError");
+    cont.classList.remove("oculto");
+    return new Promise(resolve => {
+      async function intentar() {
+        const codigo = input.value.trim();
+        if (!codigo) return;
+        err.classList.add("oculto"); btn.disabled = true; btn.textContent = "Verificando…";
+        try {
+          const estado = await validarCodigoEspecial(codigo, distrito, idDispositivo());
+          if (estado !== "ok") {
+            err.textContent = estado === "limite_alcanzado" ? "Este código ya alcanzó el máximo de dispositivos permitidos." : "Código incorrecto.";
+            err.classList.remove("oculto"); btn.disabled = false; btn.textContent = "Ingresar";
+            return;
+          }
+          sessionStorage.setItem(`codigoEspecial_${distrito}`, codigo);
+          cont.classList.add("oculto");
+          resolve(codigo);
+        } catch (e) {
+          err.textContent = "No se pudo verificar. Probá de nuevo.";
+          err.classList.remove("oculto"); btn.disabled = false; btn.textContent = "Ingresar";
+        }
+      }
+      btn.addEventListener("click", intentar);
+      input.addEventListener("keydown", e => { if (e.key === "Enter") intentar(); });
+    });
+  }
 
   function iniciarTemporizador(cierreISO) {
     if (!cierreISO) return;
@@ -149,7 +187,7 @@ export function iniciar(distrito) {
     if (!cfg) { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "El simulador de este distrito no está cargado todavía."; return; }
     $("#ciEstado").className = "aviso"; $("#ciEstado").textContent = "Verificando…";
     try {
-      const r = await verificarElegibilidad(R.ci, distrito, idDispositivo());
+      const r = await verificarElegibilidad(R.ci, distrito, idDispositivo(), codigoEspecial);
       if (r.estado === "cerrado") { bloquearParticipacion(); return; }
       if (r.estado === "dispositivo_limite") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Este celular/computadora ya llegó al máximo de cédulas que puede cargar."; return; }
       if (r.estado === "ya_voto") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Esta cédula ya participó en esta encuesta."; return; }
@@ -170,7 +208,7 @@ export function iniciar(distrito) {
         junta_lista: R.lista,
         concejal_opcion: R.concejal ? R.concejal.op : null,
         concejal_nombre: R.concejal ? R.concejal.nombre : null,
-        dispositivo: idDispositivo()
+        dispositivo: idDispositivo(), codigo: codigoEspecial
       });
       if (estado !== "ok") {
         const mensajes = { cerrado: "La participación de este distrito ya cerró.", ya_voto: "Esta cédula ya participó.", dispositivo_limite: "Este celular/computadora ya llegó al máximo de cédulas que puede cargar." };

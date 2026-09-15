@@ -27,6 +27,20 @@
 </div>
 
 <!-- ============================================================
+     ACCESO ESPECIAL  (gate para links con &especial=1 — habilita
+     el dispositivo a cargar sin el límite de 4 cédulas)
+     ============================================================ -->
+<div id="gateEspecial" class="oculto" style="position:fixed;inset:0;background:rgba(20,24,29,.92);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div class="bloque" style="max-width:340px;width:100%;margin:0">
+    <h3>Acceso especial</h3>
+    <p class="bajada" style="margin-top:0">Ingresá el código para habilitar este dispositivo.</p>
+    <div class="campo"><label for="codigoEspecial">Código</label><input id="codigoEspecial" type="password" autocomplete="off"></div>
+    <button class="mini oscuro" id="codigoEspecialBtn" style="width:100%">Ingresar</button>
+    <p class="aviso malo oculto" id="codigoEspecialError"></p>
+  </div>
+</div>
+
+<!-- ============================================================
      VISTA: PARTICIPANTE  (link: pagina.html?distrito=HORQUETA)
      ============================================================ -->
 <div id="vistaParticipante">
