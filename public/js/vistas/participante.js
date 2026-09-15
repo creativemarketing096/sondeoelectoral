@@ -1,16 +1,54 @@
-import { $, claro, retrato } from "../util/dom.js";
+import { $, claro, retrato, idDispositivo } from "../util/dom.js";
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
 import { verificarElegibilidad, enviarVoto } from "../datos/repo-respuestas.js";
 
 export function iniciar(distrito) {
   let cfg = null, R = {};
   let paso = 0;
+  let cerrado = false;
 
   obtenerConfiguracion(distrito).then(doc => {
     if (!doc.exists) { $("#distritoTitulo").textContent = "Este distrito todavía no tiene el simulador cargado."; return; }
     cfg = doc.data();
     $("#distritoTitulo").textContent = `¿A quién votarías en ${distrito}?`;
+    iniciarTemporizador(cfg.cierre);
   });
+
+  function iniciarTemporizador(cierreISO) {
+    if (!cierreISO) return;
+    const cierre = new Date(cierreISO).getTime();
+    const el = $("#temporizador"), reloj = $("#temporizadorReloj"), etq = $("#temporizadorEtq");
+    el.classList.remove("oculto");
+
+    function actualizar() {
+      const restante = cierre - Date.now();
+      if (restante <= 0) {
+        clearInterval(intervalo);
+        el.classList.add("cerrado");
+        etq.textContent = "Participación cerrada";
+        reloj.textContent = "La votación de este distrito ya terminó.";
+        bloquearParticipacion();
+        return;
+      }
+      const d = Math.floor(restante / 86400000);
+      const h = Math.floor((restante % 86400000) / 3600000);
+      const m = Math.floor((restante % 3600000) / 60000);
+      const s = Math.floor((restante % 60000) / 1000);
+      reloj.textContent = d > 0
+        ? `${d}d ${h}h ${m}m`
+        : `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+    actualizar();
+    const intervalo = setInterval(actualizar, 1000);
+  }
+
+  function bloquearParticipacion() {
+    cerrado = true;
+    $("#ci").disabled = true;
+    $("#ciEstado").className = "aviso malo";
+    $("#ciEstado").textContent = "La participación de este distrito ya cerró.";
+    validar();
+  }
 
   $("#ci").addEventListener("input", e => {
     e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -80,6 +118,7 @@ export function iniciar(distrito) {
   }
 
   function completo() {
+    if (cerrado) return false;
     if (paso === 0) return R.ci && R.ci.length >= 6;
     if (paso === 1) return !!R.intendente;
     if (paso === 2) return R.lista !== null && R.lista !== undefined;
@@ -110,7 +149,9 @@ export function iniciar(distrito) {
     if (!cfg) { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "El simulador de este distrito no está cargado todavía."; return; }
     $("#ciEstado").className = "aviso"; $("#ciEstado").textContent = "Verificando…";
     try {
-      const r = await verificarElegibilidad(R.ci, distrito);
+      const r = await verificarElegibilidad(R.ci, distrito, idDispositivo());
+      if (r.estado === "cerrado") { bloquearParticipacion(); return; }
+      if (r.estado === "dispositivo_limite") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Este celular/computadora ya llegó al máximo de cédulas que puede cargar."; return; }
       if (r.estado === "ya_voto") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Esta cédula ya participó en esta encuesta."; return; }
       if (r.estado !== "ok") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "No estás habilitado para participar en esta encuesta."; return; }
       R.padron = r;
@@ -128,9 +169,14 @@ export function iniciar(distrito) {
         intendente_lista: R.intendente.lista, intendente_nombre: R.intendente.nombre,
         junta_lista: R.lista,
         concejal_opcion: R.concejal ? R.concejal.op : null,
-        concejal_nombre: R.concejal ? R.concejal.nombre : null
+        concejal_nombre: R.concejal ? R.concejal.nombre : null,
+        dispositivo: idDispositivo()
       });
-      if (estado !== "ok") { alert("No se pudo enviar: " + estado); $("#pvSiguiente").disabled = false; $("#pvSiguiente").textContent = "Confirmar y enviar"; return; }
+      if (estado !== "ok") {
+        const mensajes = { cerrado: "La participación de este distrito ya cerró.", ya_voto: "Esta cédula ya participó.", dispositivo_limite: "Este celular/computadora ya llegó al máximo de cédulas que puede cargar." };
+        alert(mensajes[estado] || "No se pudo enviar: " + estado);
+        $("#pvSiguiente").disabled = false; $("#pvSiguiente").textContent = "Confirmar y enviar"; return;
+      }
       irA(5);
     } catch (err) {
       alert("No se pudo enviar. Revisá tu conexión.");

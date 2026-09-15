@@ -10,3 +10,13 @@ export const iniciales = n => n.split(/\s+/).filter(w => w.length > 2).slice(0, 
 
 export const retrato = (n, f, ch) =>
   `<div class="retrato${ch ? " chico" : ""}" ${f ? `style="background-image:url('${f}')"` : ""}>${f ? "" : iniciales(n)}</div>`;
+
+/* Identificador persistente del navegador — no es infalible (se pierde si
+   borran datos del sitio o usan modo incógnito), pero alcanza para que el
+   admin audite cuántas cédulas se cargaron desde un mismo aparato. */
+export function idDispositivo() {
+  const clave = "sondeo_dispositivo_id";
+  let id = localStorage.getItem(clave);
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem(clave, id); }
+  return id;
+}

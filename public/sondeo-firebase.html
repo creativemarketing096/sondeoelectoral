@@ -34,6 +34,10 @@
   <section class="pantalla activa" id="pv0">
     <div class="titulo">Encuesta ciudadana</div>
     <p class="bajada" id="distritoTitulo">Cargando distrito…</p>
+    <div class="temporizador oculto" id="temporizador">
+      <span class="temporizador-etq" id="temporizadorEtq">Cierra en</span>
+      <span class="temporizador-reloj" id="temporizadorReloj">—</span>
+    </div>
     <div class="campo">
       <label for="ci">Número de cédula</label>
       <input id="ci" inputmode="numeric" autocomplete="off" placeholder="Ej.: 5779795">
@@ -161,10 +165,16 @@
     <div id="chLocalidad" class="grafico"></div>
   </div>
 
-  <div class="bloque">
-    <h3>Participantes</h3>
+  <details class="bloque">
+    <summary><h3>Participantes</h3></summary>
     <table class="tabla" id="tablaParticipantes"><tbody></tbody></table>
-  </div>
+  </details>
+
+  <details class="bloque">
+    <summary><h3>Revisión de dispositivos</h3></summary>
+    <p class="aviso">Cada celular/computadora puede cargar hasta 4 cédulas; después queda bloqueado. Estos son los que cargaron más de una.</p>
+    <table class="tabla" id="tablaDispositivos"><tbody></tbody></table>
+  </details>
 </div>
 
 <!-- ============================================================
