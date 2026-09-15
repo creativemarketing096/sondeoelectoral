@@ -1,5 +1,4 @@
 import { $, claro, retrato } from "../util/dom.js";
-import { OPCIONES } from "../dominio/opciones.js";
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
 import { verificarElegibilidad, enviarVoto } from "../datos/repo-respuestas.js";
 
@@ -12,16 +11,6 @@ export function iniciar(distrito) {
     cfg = doc.data();
     $("#distritoTitulo").textContent = `¿A quién votarías en ${distrito}?`;
   });
-
-  chips("#chEdad", "edad"); chips("#chSexo", "sexo");
-  function chips(cont, campo) {
-    $(cont).innerHTML = OPCIONES[campo].map(v => `<button class="chip" type="button" aria-pressed="false" data-v="${v}">${v}</button>`).join("");
-    $(cont).addEventListener("click", e => {
-      const b = e.target.closest(".chip"); if (!b) return;
-      [...$(cont).children].forEach(c => c.setAttribute("aria-pressed", "false"));
-      b.setAttribute("aria-pressed", "true"); R[campo] = b.dataset.v; validar();
-    });
-  }
 
   $("#ci").addEventListener("input", e => {
     e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -40,8 +29,8 @@ export function iniciar(distrito) {
   $("#gListas").addEventListener("click", e => {
     const b = e.target.closest(".lista"); if (!b) return;
     R.lista = +b.dataset.lista; R.concejal = null;
-    if (R.lista === 0) return irA(5, armarPreview);
-    pintarConcejales(R.lista); irA(4);
+    if (R.lista === 0) return irA(4, armarPreview);
+    pintarConcejales(R.lista); irA(3);
   });
   $("#gConcejales").addEventListener("click", e => {
     const b = e.target.closest(".concejal"); if (!b) return;
@@ -92,29 +81,28 @@ export function iniciar(distrito) {
 
   function completo() {
     if (paso === 0) return R.ci && R.ci.length >= 6;
-    if (paso === 1) return R.edad && R.sexo;
-    if (paso === 2) return !!R.intendente;
-    if (paso === 3) return R.lista !== null && R.lista !== undefined;
-    if (paso === 4) return !!R.concejal;
+    if (paso === 1) return !!R.intendente;
+    if (paso === 2) return R.lista !== null && R.lista !== undefined;
+    if (paso === 3) return !!R.concejal;
     return true;
   }
   function validar() {
     const b = $("#pvSiguiente");
-    b.textContent = paso === 0 ? "Verificar cédula" : paso === 5 ? "Confirmar y enviar" : paso === 6 ? "" : "Continuar";
+    b.textContent = paso === 0 ? "Participar de la encuesta" : paso === 4 ? "Confirmar y enviar" : paso === 5 ? "" : "Continuar";
     b.disabled = !completo();
-    $("#pvAtras").style.display = (paso === 0 || paso >= 6) ? "none" : "";
-    $("#accionesParticipante").style.display = paso === 6 ? "none" : "flex";
+    $("#pvAtras").style.display = (paso === 0 || paso >= 5) ? "none" : "";
+    $("#accionesParticipante").style.display = paso === 5 ? "none" : "flex";
   }
 
   $("#pvSiguiente").addEventListener("click", async () => {
     if (paso === 0) return verificarCedula();
-    if (paso === 2) { irA(3); pintarListas(); return; }
-    if (paso === 5) return enviar();
-    irA(paso + 1, paso + 1 === 2 ? pintarIntendentes : paso + 1 === 5 ? armarPreview : null);
+    if (paso === 1) { irA(2); pintarListas(); return; }
+    if (paso === 4) return enviar();
+    irA(paso + 1, paso + 1 === 4 ? armarPreview : null);
   });
   $("#pvAtras").addEventListener("click", () => {
-    if (paso === 3 && R.lista === 0) return;
-    if (paso === 5 && R.lista === 0) return irA(3);
+    if (paso === 2 && R.lista === 0) return;
+    if (paso === 4 && R.lista === 0) return irA(2);
     irA(Math.max(0, paso - 1));
   });
 
@@ -126,7 +114,7 @@ export function iniciar(distrito) {
       if (r.estado === "ya_voto") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Esta cédula ya participó en esta encuesta."; return; }
       if (r.estado !== "ok") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "No estás habilitado para participar en esta encuesta."; return; }
       R.padron = r;
-      irA(1);
+      irA(1, pintarIntendentes);
     } catch (err) {
       $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "No se pudo verificar. Probá de nuevo.";
     }
@@ -137,16 +125,13 @@ export function iniciar(distrito) {
     try {
       const estado = await enviarVoto({
         cedula: R.ci, distrito,
-        nombre: R.padron.nombre || null,
-        localidad: R.padron.localidad || null,
-        edad: R.edad, sexo: R.sexo,
         intendente_lista: R.intendente.lista, intendente_nombre: R.intendente.nombre,
         junta_lista: R.lista,
         concejal_opcion: R.concejal ? R.concejal.op : null,
         concejal_nombre: R.concejal ? R.concejal.nombre : null
       });
       if (estado !== "ok") { alert("No se pudo enviar: " + estado); $("#pvSiguiente").disabled = false; $("#pvSiguiente").textContent = "Confirmar y enviar"; return; }
-      irA(6);
+      irA(5);
     } catch (err) {
       alert("No se pudo enviar. Revisá tu conexión.");
       $("#pvSiguiente").disabled = false; $("#pvSiguiente").textContent = "Confirmar y enviar";

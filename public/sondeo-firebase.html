@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sondeo Municipales 2026</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
 <link rel="stylesheet" href="css/sondeo.css">
 </head>
 <body>
@@ -43,27 +42,21 @@
   </section>
 
   <section class="pantalla" id="pv1">
-    <div class="titulo">Registro del participante</div>
-    <div class="campo"><label>Edad</label><div class="chips" id="chEdad"></div></div>
-    <div class="campo"><label>Sexo</label><div class="chips" id="chSexo"></div></div>
-  </section>
-
-  <section class="pantalla" id="pv2">
     <div class="titulo">Candidatos a Intendente Municipal</div>
     <div class="grilla" id="gIntendentes"></div>
   </section>
 
-  <section class="pantalla" id="pv3">
+  <section class="pantalla" id="pv2">
     <div class="titulo">Listas a Junta Municipal</div>
     <div class="grilla listas" id="gListas"></div>
   </section>
 
-  <section class="pantalla" id="pv4">
+  <section class="pantalla" id="pv3">
     <div class="titulo" id="tituloConcejales">Candidatos a Junta Municipal</div>
     <div class="grilla concejales" id="gConcejales"></div>
   </section>
 
-  <section class="pantalla" id="pv5">
+  <section class="pantalla" id="pv4">
     <div class="titulo">Revisá tu elección</div>
     <div class="boletin">
       <h2>Previsualización</h2>
@@ -75,14 +68,14 @@
     <p class="aviso centro">¿Está bien así? Una vez confirmado no se puede modificar.</p>
   </section>
 
-  <section class="pantalla" id="pv6">
+  <section class="pantalla" id="pv5">
     <div class="titulo">¡Gracias por participar!</div>
     <p class="bajada">Tu respuesta quedó registrada de forma anónima en el resultado agregado.</p>
   </section>
 
   <nav class="acciones" id="accionesParticipante">
     <button class="btn secundario" id="pvAtras">Atrás</button>
-    <button class="btn primario" id="pvSiguiente" disabled>Continuar</button>
+    <button class="btn primario" id="pvSiguiente" disabled>Participar de la encuesta</button>
   </nav>
 </div>
 
@@ -147,11 +140,26 @@
   <div class="kpi">
     <div class="c"><b id="kTotal">0</b><span>Participaron</span></div>
   </div>
-  <canvas id="chIntendente" height="180"></canvas>
-  <canvas id="chConcejo" height="180"></canvas>
-  <canvas id="chEdad" height="140"></canvas>
-  <canvas id="chSexo" height="140"></canvas>
-  <canvas id="chLocalidad" height="180"></canvas>
+  <div class="bloque">
+    <h3>Intendente</h3>
+    <div id="chIntendente" class="grafico"></div>
+  </div>
+  <div class="bloque">
+    <h3>Junta Municipal</h3>
+    <div id="chConcejo" class="grafico"></div>
+  </div>
+  <div class="bloque">
+    <h3>Sexo</h3>
+    <div id="chSexo" class="grafico"></div>
+  </div>
+  <div class="bloque">
+    <h3>Edad</h3>
+    <div id="chEdad" class="grafico"></div>
+  </div>
+  <div class="bloque">
+    <h3>Localidad</h3>
+    <div id="chLocalidad" class="grafico"></div>
+  </div>
 
   <div class="bloque">
     <h3>Participantes</h3>
