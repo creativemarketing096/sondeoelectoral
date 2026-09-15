@@ -23,6 +23,14 @@ export async function iniciar(distrito) {
   function colorLista(n) {
     return (cfg && cfg.listas[n] && cfg.listas[n].color) || GRIS;
   }
+  /* Evita texto invisible cuando el color del partido es blanco o casi blanco
+     (las tarjetas de resultado tienen fondo blanco). */
+  function colorVisible(hex) {
+    const c = (hex || "").replace("#", "");
+    if (c.length !== 6) return hex || GRIS;
+    const r = parseInt(c.slice(0, 2), 16), g = parseInt(c.slice(2, 4), 16), b = parseInt(c.slice(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 240 ? "#14181d" : hex;
+  }
 
   /* Fila horizontal: foto + % + votos, una tarjeta por candidato — para
      intendente y para el top de concejales. */
@@ -31,9 +39,10 @@ export async function iniciar(distrito) {
     if (!total) { $(id).innerHTML = `<p class="aviso centro">Todavía no hay datos.</p>`; return; }
     $(id).innerHTML = `<div class="fila-resultados">` + items.map(i => {
       const pct = Math.round(i.valor / total * 100);
-      return `<div class="resultado-candidato" style="border-top-color:${i.color}">
+      const color = colorVisible(i.color);
+      return `<div class="resultado-candidato" style="border-top-color:${color}">
         <div class="foto-resultado" ${i.foto ? `style="background-image:url('${i.foto}')"` : ""}>${i.foto ? "" : iniciales(i.etiqueta)}</div>
-        <b class="pct-resultado" style="color:${i.color}">${pct}%</b>
+        <b class="pct-resultado" style="color:${color}">${pct}%</b>
         <span class="nombre-resultado">${i.etiqueta}</span>
         <span class="votos-resultado">${i.valor} voto${i.valor === 1 ? "" : "s"}</span>
       </div>`;
