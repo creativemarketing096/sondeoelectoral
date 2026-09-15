@@ -39,7 +39,7 @@ button{font-family:inherit}
 .tabla.anidada td{border-bottom:1px solid #e3e3e0}
 .grilla{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
 .grilla.listas{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.grilla.concejales{grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
+.grilla.concejales{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
 .tarjeta{position:relative;background:#fff;border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;text-align:center;padding:14px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:250px;overflow:hidden}
 .tarjeta .rotulo{font-size:13px;font-weight:700;text-transform:uppercase;line-height:1.2;min-height:2.4em;display:flex;align-items:center}
 .tarjeta .foto{margin:2px 0}
@@ -54,9 +54,12 @@ button{font-family:inherit}
 .lista{border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;padding:14px;text-align:center}
 .lista .num{font-family:var(--display);font-size:clamp(24px,7vw,38px);line-height:1}
 .lista .nombre{font-weight:700;font-size:13px;text-transform:uppercase;margin:8px 0}
-.concejal{background:#fff;border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;padding:9px;display:flex;gap:9px;align-items:center;text-align:left}
-.concejal .op{font-family:var(--display);font-size:12px;color:#6b7079}
-.concejal .nom{font-size:12px;font-weight:700;text-transform:uppercase;line-height:1.2}
+.concejal{background:#fff;border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.concejal .cabecera{display:flex;gap:10px;align-items:center}
+.concejal .cabecera .retrato{flex:0 0 auto}
+.concejal .op{font-size:11px;font-weight:700;text-transform:uppercase;color:#5b616a;letter-spacing:.04em}
+.concejal .op b{display:block;font-family:var(--display);font-size:22px;line-height:1.15;color:var(--tinta)}
+.concejal .nom{font-size:12.5px;font-weight:700;text-transform:uppercase;line-height:1.25;text-align:center}
 .acciones{position:fixed;left:0;right:0;bottom:0;background:var(--barra);display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:40}
 .btn{flex:1;border:none;padding:15px 12px;font-size:15px;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:2px}
 .btn.primario{background:var(--ag);color:#14181d}

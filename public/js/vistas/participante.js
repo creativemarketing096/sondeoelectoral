@@ -47,7 +47,7 @@ export function iniciar(distrito) {
     const b = e.target.closest(".concejal"); if (!b) return;
     [...$("#gConcejales").children].forEach(c => c.dataset.sel = "0"); b.dataset.sel = "1";
     const op = +b.dataset.op;
-    R.concejal = op ? { op, nombre: cfg.listas[R.lista].candidatos[op - 1] } : { op: 0, nombre: "Solo lista" };
+    R.concejal = { op, nombre: cfg.listas[R.lista].candidatos[op - 1] };
     validar();
   });
 
@@ -75,14 +75,14 @@ export function iniciar(distrito) {
     const p = cfg.listas[n], t = $("#tituloConcejales");
     t.textContent = `Lista ${n} — ${p.nombre}`; t.style.background = p.color; t.style.color = claro(p.color);
     $("#gConcejales").innerHTML = p.candidatos.map((c, i) =>
-      `<button class="concejal" data-op="${i + 1}" data-sel="0">${retrato(c, (p.fotos && p.fotos[i]) || "", true)}
-        <span><span class="op">Opción ${i + 1}</span><br><span class="nom">${c}</span></span></button>`).join("") +
-      `<button class="concejal" data-op="0" data-sel="0" style="grid-column:1/-1;justify-content:center"><span class="nom">Vota solo por la lista</span></button>`;
+      `<button class="concejal" data-op="${i + 1}" data-sel="0">
+        <span class="cabecera">${retrato(c, (p.fotos && p.fotos[i]) || "", true)}<span class="op">OPCIÓN<b>${i + 1}</b></span></span>
+        <span class="nom">${c}</span></button>`).join("");
   }
   function armarPreview() {
     $("#prevIntendente").textContent = R.intendente.nombre;
     $("#prevConcejal").textContent = R.lista === 0 ? "VOTO EN BLANCO / NS-NC"
-      : (R.concejal.op ? R.concejal.nombre : cfg.listas[R.lista].nombre) + ` (Lista ${R.lista})`;
+      : `${R.concejal.nombre} (Lista ${R.lista})`;
   }
 
   function irA(n, cb) {
