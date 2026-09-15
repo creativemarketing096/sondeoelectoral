@@ -16,7 +16,8 @@ export async function iniciar() {
     return `<tr>
       <td><b>${d}</b><br><small>${cfg.intendentes.length} intendente(s) · ${Object.keys(cfg.listas).length} lista(s)</small></td>
       <td><a class="mini chico" href="${base}?distrito=${q}" target="_blank">Encuesta</a>
-          <a class="mini chico" href="${base}?vista=dashboard&distrito=${q}" target="_blank">Dashboard</a></td>
+          <a class="mini chico" href="${base}?vista=dashboard&distrito=${q}" target="_blank">Dashboard</a>
+          <a class="mini chico" href="${base}?vista=resultados&distrito=${q}" target="_blank">Resultados públicos</a></td>
     </tr>`;
   });
 

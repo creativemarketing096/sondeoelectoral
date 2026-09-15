@@ -20,6 +20,13 @@ export async function enviarVoto(v) {
   return data;
 }
 
+/* Solo totales agregados (sin cédula/nombre) — segura para mostrar sin login. */
+export async function obtenerResultadosPublicos(distrito) {
+  const { data, error } = await supabase.rpc("resultados_publicos", { p_distrito: distrito });
+  if (error) throw error;
+  return data;
+}
+
 export function suscribirRespuestas(distrito, cb) {
   const emitir = async () => {
     const { data, error } = await supabase.from("respuestas").select("*").eq("distrito", distrito);

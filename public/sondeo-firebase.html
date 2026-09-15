@@ -140,7 +140,10 @@
      ============================================================ -->
 <div id="vistaDashboard" class="oculto">
   <div class="titulo">Panel en tiempo real</div>
-  <p class="aviso centro"><a class="mini chico" href="?vista=indice">← Todos los distritos</a></p>
+  <p class="aviso centro">
+    <a class="mini chico" href="?vista=indice">← Todos los distritos</a>
+    <a class="mini chico" id="linkResultadosPublicos" href="#" target="_blank">Ver resultados públicos ↗</a>
+  </p>
   <div class="kpi">
     <div class="c"><b id="kTotal">0</b><span>Participaron</span></div>
   </div>
@@ -175,6 +178,33 @@
     <p class="aviso">Cada celular/computadora puede cargar hasta 4 cédulas; después queda bloqueado. Estos son los que cargaron más de una.</p>
     <table class="tabla" id="tablaDispositivos"><tbody></tbody></table>
   </details>
+</div>
+
+<!-- ============================================================
+     VISTA: RESULTADOS PÚBLICOS  (link: pagina.html?vista=resultados&distrito=X)
+     Sin login — pensada para proyectar/compartir. Solo agregados.
+     ============================================================ -->
+<div id="vistaResultados" class="oculto">
+  <div class="titulo" id="tituloResultadosDistrito">Resultados en vivo</div>
+  <div class="kpi">
+    <div class="c"><b id="rTotal">0</b><span>Participaron</span></div>
+  </div>
+  <div class="bloque">
+    <h3>Intendente</h3>
+    <div id="rIntendente" class="grafico"></div>
+  </div>
+  <div class="bloque">
+    <h3>Junta Municipal</h3>
+    <div id="rConcejo" class="grafico"></div>
+  </div>
+  <div class="bloque">
+    <h3>Sexo</h3>
+    <div id="rSexo" class="grafico"></div>
+  </div>
+  <div class="bloque">
+    <h3>Edad</h3>
+    <div id="rEdad" class="grafico"></div>
+  </div>
 </div>
 
 <!-- ============================================================

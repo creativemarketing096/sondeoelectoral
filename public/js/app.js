@@ -13,7 +13,8 @@ const VISTAS = {
   participante: () => import("./vistas/participante.js"),
   config: () => import("./vistas/config.js"),
   dashboard: () => import("./vistas/dashboard.js"),
-  indice: () => import("./vistas/indice.js")
+  indice: () => import("./vistas/indice.js"),
+  resultados: () => import("./vistas/resultados.js")
 };
 
 const cargarVista = VISTAS[VISTA] || VISTAS.participante;
