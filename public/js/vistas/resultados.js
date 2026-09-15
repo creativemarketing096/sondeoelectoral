@@ -36,7 +36,7 @@ export async function iniciar(distrito) {
       foto: cfg && (cfg.intendentes.find(c => c.lista === f.lista) || {}).foto
     })));
 
-    const top = deCategoria("concejal").sort((a, b) => b.valor - a.valor).slice(0, 10);
+    const top = deCategoria("concejal").sort((a, b) => b.valor - a.valor).slice(0, 12);
     filaResultados("#rConcejo", top.map(f => ({
       etiqueta: f.etiqueta, valor: Number(f.valor), color: colorLista(f.lista),
       foto: cfg && f.opcion && cfg.listas[f.lista] && cfg.listas[f.lista].fotos ? cfg.listas[f.lista].fotos[f.opcion - 1] : null

@@ -41,7 +41,7 @@ export async function iniciar(distrito) {
       if (!cc[k]) cc[k] = { total: 0, lista: f.junta_lista, opcion: f.concejal_opcion };
       cc[k].total++;
     });
-    const top = Object.entries(cc).sort((a, b) => b[1].total - a[1].total).slice(0, 10);
+    const top = Object.entries(cc).sort((a, b) => b[1].total - a[1].total).slice(0, 12);
     filaResultados("#chConcejo", top.map(([etiqueta, v]) => ({
       etiqueta, valor: v.total, color: colorLista(v.lista),
       foto: cfg && v.opcion && cfg.listas[v.lista] && cfg.listas[v.lista].fotos ? cfg.listas[v.lista].fotos[v.opcion - 1] : null
