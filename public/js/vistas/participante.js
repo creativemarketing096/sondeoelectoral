@@ -1,7 +1,7 @@
 import { $, claro, retrato } from "../util/dom.js";
 import { OPCIONES } from "../dominio/opciones.js";
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
-import { obtenerPadron, obtenerRespuestaExistente, guardarRespuesta } from "../datos/repo-respuestas.js";
+import { verificarElegibilidad, enviarVoto } from "../datos/repo-respuestas.js";
 
 export function iniciar(distrito) {
   let cfg = null, R = {};
@@ -122,13 +122,10 @@ export function iniciar(distrito) {
     if (!cfg) { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "El simulador de este distrito no está cargado todavía."; return; }
     $("#ciEstado").className = "aviso"; $("#ciEstado").textContent = "Verificando…";
     try {
-      const [padron, ya] = await Promise.all([obtenerPadron(R.ci), obtenerRespuestaExistente(R.ci)]);
-      if (ya.exists) { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Esta cédula ya participó en esta encuesta."; return; }
-      if (!padron.exists || padron.data().distrito.toUpperCase() !== distrito) {
-        $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "No estás habilitado para participar en esta encuesta.";
-        return;
-      }
-      R.padron = padron.data();
+      const r = await verificarElegibilidad(R.ci, distrito);
+      if (r.estado === "ya_voto") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Esta cédula ya participó en esta encuesta."; return; }
+      if (r.estado !== "ok") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "No estás habilitado para participar en esta encuesta."; return; }
+      R.padron = r;
       irA(1);
     } catch (err) {
       $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "No se pudo verificar. Probá de nuevo.";
@@ -138,8 +135,8 @@ export function iniciar(distrito) {
   async function enviar() {
     $("#pvSiguiente").disabled = true; $("#pvSiguiente").textContent = "Enviando…";
     try {
-      await guardarRespuesta(R.ci, {
-        distrito,
+      const estado = await enviarVoto({
+        cedula: R.ci, distrito,
         nombre: R.padron.nombre || null,
         localidad: R.padron.localidad || null,
         edad: R.edad, sexo: R.sexo,
@@ -148,6 +145,7 @@ export function iniciar(distrito) {
         concejal_opcion: R.concejal ? R.concejal.op : null,
         concejal_nombre: R.concejal ? R.concejal.nombre : null
       });
+      if (estado !== "ok") { alert("No se pudo enviar: " + estado); $("#pvSiguiente").disabled = false; $("#pvSiguiente").textContent = "Confirmar y enviar"; return; }
       irA(6);
     } catch (err) {
       alert("No se pudo enviar. Revisá tu conexión.");

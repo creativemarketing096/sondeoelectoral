@@ -1,22 +1,21 @@
 import { $ } from "./util/dom.js";
+import { supabase } from "./supabase-init.js";
 
-let estadoInicial = null;
+let sesionInicial = null;
 
-function esperarEstadoInicial() {
-  if (!estadoInicial) {
-    estadoInicial = new Promise(resolve => {
-      const quitar = firebase.auth().onAuthStateChanged(user => { quitar(); resolve(user); });
-    });
+function esperarSesionInicial() {
+  if (!sesionInicial) {
+    sesionInicial = supabase.auth.getSession().then(({ data }) => data.session);
   }
-  return estadoInicial;
+  return sesionInicial;
 }
 
-/* Gate de administración: resuelve con el usuario autenticado.
+/* Gate de administración: resuelve con la sesión autenticada.
    Si nadie inició sesión, muestra el overlay de login hasta que entre
-   con el único usuario admin creado en Firebase Console → Authentication. */
+   con el único usuario admin creado en Supabase. */
 export async function protegerVista() {
-  const user = await esperarEstadoInicial();
-  if (user) return user;
+  const sesion = await esperarSesionInicial();
+  if (sesion) return sesion;
 
   return new Promise(resolve => {
     const overlay = $("#loginAdmin");
@@ -27,16 +26,15 @@ export async function protegerVista() {
       const pass = $("#loginPass").value;
       $("#loginError").classList.add("oculto");
       $("#loginBtn").disabled = true; $("#loginBtn").textContent = "Ingresando…";
-      try {
-        const cred = await firebase.auth().signInWithEmailAndPassword(email, pass);
-        overlay.classList.add("oculto");
-        resolve(cred.user);
-      } catch (err) {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (error) {
         $("#loginError").classList.remove("oculto");
         $("#loginError").textContent = "Email o contraseña incorrectos.";
-      } finally {
-        $("#loginBtn").disabled = false; $("#loginBtn").textContent = "Ingresar";
+      } else {
+        overlay.classList.add("oculto");
+        resolve(data.session);
       }
+      $("#loginBtn").disabled = false; $("#loginBtn").textContent = "Ingresar";
     };
 
     $("#loginBtn").addEventListener("click", entrar);

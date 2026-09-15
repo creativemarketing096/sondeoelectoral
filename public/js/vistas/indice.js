@@ -10,18 +10,15 @@ export async function iniciar() {
   const base = location.origin + location.pathname;
   $("#indiceLinkPropio").textContent = `${base}?vista=indice`;
 
-  const snap = await listarDistritos();
-  const filas = [];
-  snap.forEach(doc => {
-    const d = doc.id;
-    const cfg = doc.data();
+  const filas = (await listarDistritos()).map(cfg => {
+    const d = cfg.distrito;
     const q = encodeURIComponent(d);
-    filas.push(`<tr>
+    return `<tr>
       <td><b>${d}</b><br><small>${cfg.intendentes.length} intendente(s) · ${Object.keys(cfg.listas).length} lista(s)</small></td>
       <td><a class="mini chico" href="${base}?distrito=${q}" target="_blank">Encuesta</a>
           <a class="mini chico" href="${base}?vista=config&distrito=${q}" target="_blank">Configurar</a>
           <a class="mini chico" href="${base}?vista=dashboard&distrito=${q}" target="_blank">Dashboard</a></td>
-    </tr>`);
+    </tr>`;
   });
 
   $("#tablaDistritos").querySelector("tbody").innerHTML = filas.length

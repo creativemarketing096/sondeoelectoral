@@ -2,3 +2,9 @@
 *.xls
 *.csv
 .claude/
+fotos-candidatos/
+*serviceAccount*.json
+*firebase-adminsdk*.json
+node_modules/
+.env
+.env.*

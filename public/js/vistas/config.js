@@ -37,7 +37,7 @@ export async function iniciar(distrito) {
 
   async function guardar(msg) {
     await guardarConfiguracion(distrito, cfg);
-    $("#estadoConfig").className = "aviso bien"; $("#estadoConfig").textContent = msg + " · guardado en Firestore.";
+    $("#estadoConfig").className = "aviso bien"; $("#estadoConfig").textContent = msg + " · guardado.";
   }
 
   function pintarTablas() {
@@ -74,7 +74,7 @@ export async function iniciar(distrito) {
     if (!lista || !nombre || !partido) return alert("Completá lista, agrupación y candidato.");
     let foto = "";
     const archivo = $("#cfFoto").files[0];
-    if (archivo) foto = await subirArchivo(`candidatos/${distrito}/intendentes/${lista}.jpg`, archivo);
+    if (archivo) foto = await subirArchivo(`${distrito}/intendentes/${lista}.jpg`, archivo);
     cfg.intendentes.push({ lista, partido, nombre, color: $("#cfColor").value, foto });
     cfg.intendentes.sort((a, b) => a.lista - b.lista);
     ["#cfLista", "#cfNombre", "#cfPartido", "#cfFoto"].forEach(s => $(s).value = "");
@@ -92,7 +92,7 @@ export async function iniciar(distrito) {
   $("#cfFotoExistente").addEventListener("change", async e => {
     const archivo = e.target.files[0]; if (!archivo || fotoIntendenteIdx === null) return;
     const c = cfg.intendentes[fotoIntendenteIdx];
-    c.foto = await subirArchivo(`candidatos/${distrito}/intendentes/${c.lista}.jpg`, archivo);
+    c.foto = await subirArchivo(`${distrito}/intendentes/${c.lista}.jpg`, archivo);
     e.target.value = "";
     pintarTablas(); guardar("Foto actualizada");
   });
@@ -105,7 +105,7 @@ export async function iniciar(distrito) {
     const archivos = [...$("#cjFotos").files];
     const fotos = [];
     for (let i = 0; i < cands.length; i++) {
-      if (archivos[i]) fotos.push(await subirArchivo(`candidatos/${distrito}/listas/${n}/${i + 1}.jpg`, archivos[i]));
+      if (archivos[i]) fotos.push(await subirArchivo(`${distrito}/listas/${n}/${i + 1}.jpg`, archivos[i]));
       else fotos.push("");
     }
     cfg.listas[n] = { nombre, color: $("#cjColor").value, candidatos: cands, fotos };
@@ -129,7 +129,7 @@ export async function iniciar(distrito) {
   $("#cjFotoExistente").addEventListener("change", async e => {
     const archivo = e.target.files[0]; if (!archivo || !fotoConcejal) return;
     const { n, idx } = fotoConcejal;
-    cfg.listas[n].fotos[idx] = await subirArchivo(`candidatos/${distrito}/listas/${n}/${idx + 1}.jpg`, archivo);
+    cfg.listas[n].fotos[idx] = await subirArchivo(`${distrito}/listas/${n}/${idx + 1}.jpg`, archivo);
     e.target.value = "";
     pintarTablas(); guardar("Foto actualizada");
   });
@@ -208,7 +208,7 @@ async function analizarPadron() {
     const resumen = Object.entries(conteo).sort((a, b) => b[1] - a[1]).map(([d, n]) => `${d}: ${n}`).join(" · ");
 
     estado.className = "aviso";
-    estado.textContent = `${registros.length} cédulas encontradas — ${resumen}. Tocá "Confirmar importación" para subirlas a Firestore (puede tardar varios minutos con archivos grandes; no cierres esta pestaña).`;
+    estado.textContent = `${registros.length} cédulas encontradas — ${resumen}. Tocá "Confirmar importación" para subirlas (puede tardar varios minutos con archivos grandes; no cierres esta pestaña).`;
     $("#padronImportar").textContent = "Confirmar importación";
     return registros;
   } catch (err) {

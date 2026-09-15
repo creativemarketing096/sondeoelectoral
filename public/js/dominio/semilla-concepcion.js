@@ -1,4 +1,4 @@
-/* Semilla lista para cargar en Firestore desde el panel de config,
+/* Semilla lista para cargar desde el panel de config,
    ya transcripta del boletín oficial de Concepción */
 export const SEMILLA_CONCEPCION = {
   intendentes: [

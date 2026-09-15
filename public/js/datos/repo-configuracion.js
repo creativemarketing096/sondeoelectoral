@@ -1,14 +1,18 @@
-/* Colección: configuracion/{distrito} { intendentes:[...], listas:{n:{...}} } */
-import { db } from "../firebase-init.js";
+import { supabase } from "../supabase-init.js";
 
-export function obtenerConfiguracion(distrito) {
-  return db.collection("configuracion").doc(distrito).get();
+export async function obtenerConfiguracion(distrito) {
+  const { data, error } = await supabase.from("configuracion").select("*").eq("distrito", distrito).maybeSingle();
+  if (error) throw error;
+  return { exists: !!data, data: () => data };
 }
 
-export function guardarConfiguracion(distrito, cfg) {
-  return db.collection("configuracion").doc(distrito).set(cfg);
+export async function guardarConfiguracion(distrito, cfg) {
+  const { error } = await supabase.from("configuracion").upsert({ distrito, intendentes: cfg.intendentes, listas: cfg.listas });
+  if (error) throw error;
 }
 
-export function listarDistritos() {
-  return db.collection("configuracion").get();
+export async function listarDistritos() {
+  const { data, error } = await supabase.from("configuracion").select("*").order("distrito");
+  if (error) throw error;
+  return data;
 }
