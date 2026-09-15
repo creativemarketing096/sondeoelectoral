@@ -18,7 +18,8 @@ button{font-family:inherit}
 .titulo{background:#fff;border:1px solid var(--linea);margin:12px;padding:10px 14px;text-align:center;font-family:var(--display);font-size:clamp(14px,4.2vw,20px);text-transform:uppercase}
 .bajada{margin:-4px 14px 14px;text-align:center;font-size:13px;color:#4b5058}
 .pantalla{display:none;padding:0 12px}
-.pantalla.activa{display:block}
+.pantalla.activa{display:block;animation:aparecer .18s ease-out}
+@keyframes aparecer{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .campo{margin:0 0 14px}
 .campo label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;color:#3c4149}
 .campo input,.campo select,.campo textarea{width:100%;padding:12px;font-size:16px;border:1px solid #9aa0a6;background:#fff;border-radius:2px;font-family:inherit}
@@ -42,7 +43,9 @@ button{font-family:inherit}
 .grilla{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
 .grilla.listas{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .grilla.concejales{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
-.tarjeta{position:relative;background:#fff;border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;text-align:center;padding:14px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:250px;overflow:hidden}
+.tarjeta{position:relative;background:#fff;border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;text-align:center;padding:14px 8px 16px;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:250px;overflow:hidden;transition:transform .12s ease,box-shadow .12s ease}
+.tarjeta:active{transform:scale(.97)}
+@media (hover:hover){.tarjeta:hover{transform:translateY(-2px);box-shadow:0 3px 0 #b9b9b5,0 10px 22px rgba(0,0,0,.16)}}
 .tarjeta .rotulo{font-size:13px;font-weight:700;text-transform:uppercase;line-height:1.2;min-height:2.4em;display:flex;align-items:center}
 .tarjeta .foto{margin:2px 0}
 .tarjeta .listaNum{font-family:var(--display);font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.8;margin-top:2px}
@@ -53,17 +56,22 @@ button{font-family:inherit}
 .tarjeta[data-sel="1"] .marca{display:block}
 .retrato{width:88px;height:108px;background:#fff;border:1px solid var(--linea);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:26px;color:#7a7f87;background-size:cover;background-position:center top}
 .retrato.chico{width:50px;height:62px;font-size:16px}
-.lista{border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;padding:14px;text-align:center}
+.lista{border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;padding:14px;text-align:center;transition:transform .12s ease,box-shadow .12s ease}
+.lista:active{transform:scale(.97)}
+@media (hover:hover){.lista:hover{transform:translateY(-2px);box-shadow:0 3px 0 #b9b9b5,0 10px 22px rgba(0,0,0,.16)}}
 .lista .num{font-family:var(--display);font-size:clamp(24px,7vw,38px);line-height:1}
 .lista .nombre{font-weight:700;font-size:13px;text-transform:uppercase;margin:8px 0}
-.concejal{background:#fff;border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.concejal{background:#fff;border:1px solid var(--linea);box-shadow:var(--sombra);cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:8px;text-align:left;transition:transform .12s ease,box-shadow .12s ease}
+.concejal:active{transform:scale(.97)}
+@media (hover:hover){.concejal:hover{transform:translateY(-1px);box-shadow:0 3px 0 #b9b9b5,0 8px 18px rgba(0,0,0,.14)}}
 .concejal .cabecera{display:flex;gap:10px;align-items:center}
 .concejal .cabecera .retrato{flex:0 0 auto}
 .concejal .op{font-size:11px;font-weight:700;text-transform:uppercase;color:#5b616a;letter-spacing:.04em}
 .concejal .op b{display:block;font-family:var(--display);font-size:22px;line-height:1.15;color:var(--tinta)}
 .concejal .nom{font-size:12.5px;font-weight:700;text-transform:uppercase;line-height:1.25;text-align:center}
 .acciones{position:fixed;left:0;right:0;bottom:0;background:var(--barra);display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:40}
-.btn{flex:1;border:none;padding:15px 12px;font-size:15px;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:2px}
+.btn{flex:1;border:none;padding:15px 12px;font-size:15px;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:filter .1s ease}
+.btn:active{filter:brightness(.92)}
 .btn.primario{background:var(--ag);color:#14181d}
 .btn.primario[disabled]{background:#8d9096;color:#d6d8db;cursor:not-allowed}
 .btn.secundario{flex:0 0 auto;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55)}
