@@ -1,5 +1,5 @@
 import { $ } from "../util/dom.js";
-import { suscribirRespuestas } from "../datos/repo-respuestas.js";
+import { suscribirRespuestas, listarDispositivosExentos } from "../datos/repo-respuestas.js";
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
 import { OPCIONES } from "../dominio/opciones.js";
 import { protegerVista } from "../auth.js";
@@ -16,6 +16,9 @@ export async function iniciar(distrito) {
 
   let cfg = null;
   try { const doc = await obtenerConfiguracion(distrito); if (doc.exists) cfg = doc.data(); } catch (e) {}
+
+  let exentos = new Set();
+  try { exentos = new Set(await listarDispositivosExentos(distrito)); } catch (e) {}
 
   function colorIntendente(nombre) {
     const c = cfg && cfg.intendentes.find(x => x.nombre === nombre);
@@ -64,7 +67,9 @@ export async function iniciar(distrito) {
 
     const porDispositivo = {};
     filas.forEach(f => { if (f.dispositivo_id) (porDispositivo[f.dispositivo_id] = porDispositivo[f.dispositivo_id] || []).push(f); });
-    const sospechosos = Object.entries(porDispositivo).filter(([, v]) => v.length > 1).sort((a, b) => b[1].length - a[1].length);
+    const sospechosos = Object.entries(porDispositivo)
+      .filter(([id, v]) => v.length > 1 && !exentos.has(id))
+      .sort((a, b) => b[1].length - a[1].length);
     $("#tablaDispositivos").querySelector("tbody").innerHTML = sospechosos.length
       ? `<tr><th>Dispositivo</th><th>Cédulas cargadas</th></tr>` + sospechosos.map(([id, v]) =>
           `<tr><td><code>${id.slice(0, 8)}…</code></td><td>${v.length} — ${v.map(f => f.id).join(", ")}</td></tr>`).join("")

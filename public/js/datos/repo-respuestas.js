@@ -29,6 +29,16 @@ export async function validarCodigoEspecial(codigo, distrito, dispositivo) {
   return data;
 }
 
+/* Dispositivos autorizados por un código especial en este distrito — se
+   excluyen de la revisión de dispositivos del dashboard, porque cargar
+   varias cédulas ahí es esperado, no sospechoso. Requiere sesión admin
+   (la tabla codigos_especiales no es pública). */
+export async function listarDispositivosExentos(distrito) {
+  const { data, error } = await supabase.from("codigos_especiales").select("dispositivos").ilike("distrito", distrito);
+  if (error) throw error;
+  return (data || []).flatMap(r => r.dispositivos || []);
+}
+
 /* Solo totales agregados (sin cédula/nombre) — segura para mostrar sin login. */
 export async function obtenerResultadosPublicos(distrito) {
   const { data, error } = await supabase.rpc("resultados_publicos", { p_distrito: distrito });
