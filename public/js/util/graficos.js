@@ -28,6 +28,56 @@ export function filaResultados(id, items) {
   }).join("") + `</div>`;
 }
 
+/* Concejales agrupados por lista, en el orden de la boleta (no por votos).
+   A diferencia de filaResultados, esto NO reconstruye el DOM en cada
+   actualización: crea las tarjetas una sola vez y después solo les cambia
+   el texto del porcentaje/votos in-place. Como el orden nunca cambia y no
+   se destruyen nodos, se puede hacer scroll y mirar tranquilo mientras
+   entran votos en tiempo real, sin que la pantalla salte o se reordene. */
+export function filaConcejales(id, cfg, cc) {
+  const cont = $(id);
+  if (!cfg || !cfg.listas || !Object.keys(cfg.listas).length) {
+    cont.innerHTML = `<p class="aviso centro">Todavía no hay datos.</p>`;
+    return;
+  }
+  const total = Object.values(cc).reduce((s, v) => s + (v.total ?? v.valor ?? 0), 0);
+
+  Object.entries(cfg.listas).forEach(([n, l]) => {
+    const color = colorVisible(l.color || GRIS);
+    let seccion = cont.querySelector(`[data-lista="${n}"]`);
+    if (!seccion) {
+      seccion = document.createElement("div");
+      seccion.className = "seccion-lista";
+      seccion.dataset.lista = n;
+      seccion.innerHTML = `<div class="seccion-lista-titulo" style="border-color:${l.color || GRIS};color:${color}">LISTA ${n} — ${l.nombre}</div><div class="grilla-concejales"></div>`;
+      cont.appendChild(seccion);
+    }
+    const grilla = seccion.querySelector(".grilla-concejales");
+    l.candidatos.forEach((nombre, i) => {
+      const clave = `${n}·${nombre}`;
+      const v = cc[clave] || {};
+      const valor = v.total ?? v.valor ?? 0;
+      const pct = total ? Math.round(valor / total * 100) : 0;
+      let tarjeta = grilla.querySelector(`[data-clave="${CSS.escape(clave)}"]`);
+      if (!tarjeta) {
+        const foto = l.fotos && l.fotos[i];
+        tarjeta = document.createElement("div");
+        tarjeta.className = "resultado-candidato";
+        tarjeta.dataset.clave = clave;
+        tarjeta.style.borderTopColor = l.color || GRIS;
+        tarjeta.innerHTML = `
+          <div class="foto-resultado" ${foto ? `style="background-image:url('${foto.replace(/'/g, "%27")}')"` : ""}>${foto ? "" : iniciales(nombre)}</div>
+          <b class="pct-resultado" style="color:${color}"></b>
+          <span class="nombre-resultado">${nombre}</span>
+          <span class="votos-resultado"></span>`;
+        grilla.appendChild(tarjeta);
+      }
+      tarjeta.querySelector(".pct-resultado").textContent = pct + "%";
+      tarjeta.querySelector(".votos-resultado").textContent = `${valor} voto${valor === 1 ? "" : "s"}`;
+    });
+  });
+}
+
 /* Tira compacta de porcentajes en una sola fila — para sexo y edad. */
 export function filaStats(id, items) {
   const total = items.reduce((s, i) => s + i.valor, 0) || 1;

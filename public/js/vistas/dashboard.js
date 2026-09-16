@@ -3,7 +3,7 @@ import { suscribirRespuestas, listarDispositivosExentos } from "../datos/repo-re
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
 import { OPCIONES } from "../dominio/opciones.js";
 import { protegerVista } from "../auth.js";
-import { filaResultados, filaStats, barras, cuenta, GRIS } from "../util/graficos.js";
+import { filaResultados, filaConcejales, filaStats, barras, cuenta, GRIS } from "../util/graficos.js";
 
 const RAMPA_EDAD = ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#184f95"];
 const COLOR_SEXO = { Femenino: "#2a78d6", Masculino: "#eb6834" };
@@ -24,10 +24,6 @@ export async function iniciar(distrito) {
     const c = cfg && cfg.intendentes.find(x => x.nombre === nombre);
     return c ? c.color : GRIS;
   }
-  function colorLista(n) {
-    return (cfg && cfg.listas[n] && cfg.listas[n].color) || GRIS;
-  }
-
   suscribirRespuestas(distrito, snap => {
     const filas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     $("#kTotal").textContent = filas.length;
@@ -38,25 +34,15 @@ export async function iniciar(distrito) {
       foto: cfg && (cfg.intendentes.find(c => c.nombre === nombre) || {}).foto
     })));
 
-    /* Arranca con los 60 (o los que sean) concejales de todas las listas en
-       0 votos, para que se vean todos aunque a alguno todavía no lo votó
-       nadie — no solo un top recortado. */
+    /* Agrupado por lista, orden fijo de boleta (no por votos) y actualizado
+       in-place — ver comentario de filaConcejales en graficos.js. */
     const cc = {};
-    if (cfg) {
-      Object.entries(cfg.listas).forEach(([n, l]) => {
-        l.candidatos.forEach((nombre, i) => { cc[`${n}·${nombre}`] = { etiqueta: nombre, total: 0, lista: +n, opcion: i + 1 }; });
-      });
-    }
     filas.forEach(f => {
-      const k = f.concejal_nombre ? `${f.junta_lista}·${f.concejal_nombre}` : (f.junta_lista ? "Lista " + f.junta_lista : "NS/NC");
-      if (!cc[k]) cc[k] = { etiqueta: f.concejal_nombre || (f.junta_lista ? "Lista " + f.junta_lista : "NS/NC"), total: 0, lista: f.junta_lista, opcion: f.concejal_opcion };
+      const k = f.concejal_nombre ? `${f.junta_lista}·${f.concejal_nombre}` : "blanco";
+      if (!cc[k]) cc[k] = { total: 0 };
       cc[k].total++;
     });
-    const todos = Object.values(cc).sort((a, b) => b.total - a.total);
-    filaResultados("#chConcejo", todos.map(v => ({
-      etiqueta: v.etiqueta, valor: v.total, color: colorLista(v.lista),
-      foto: cfg && v.opcion && cfg.listas[v.lista] && cfg.listas[v.lista].fotos ? cfg.listas[v.lista].fotos[v.opcion - 1] : null
-    })));
+    filaConcejales("#chConcejo", cfg, cc);
 
     const cs = cuenta(filas, "sexo");
     filaStats("#chSexo", OPCIONES.sexo.map(s => ({ etiqueta: s, valor: cs[s] || 0, color: COLOR_SEXO[s] || GRIS })));

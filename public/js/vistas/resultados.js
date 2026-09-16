@@ -1,7 +1,7 @@
 import { $ } from "../util/dom.js";
 import { obtenerResultadosPublicos } from "../datos/repo-respuestas.js";
 import { obtenerConfiguracion } from "../datos/repo-configuracion.js";
-import { filaResultados, filaStats, GRIS } from "../util/graficos.js";
+import { filaResultados, filaConcejales, filaStats, GRIS } from "../util/graficos.js";
 
 /* Vista pública, sin login — pensada para proyectar en pantalla o
    compartir el link. Solo totales agregados, nunca datos de una persona.
@@ -19,10 +19,6 @@ export async function iniciar(distrito) {
     const c = cfg && cfg.intendentes.find(x => x.lista === lista);
     return c ? c.color : GRIS;
   }
-  function colorLista(n) {
-    return (cfg && cfg.listas[n] && cfg.listas[n].color) || GRIS;
-  }
-
   async function actualizar() {
     let filas;
     try { filas = await obtenerResultadosPublicos(distrito); } catch (e) { return; }
@@ -36,23 +32,14 @@ export async function iniciar(distrito) {
       foto: cfg && (cfg.intendentes.find(c => c.lista === f.lista) || {}).foto
     })));
 
-    /* Arranca con todos los concejales de todas las listas en 0 votos, para
-       que se vean los 60 (o los que sean) y no solo un top recortado. */
+    /* Agrupado por lista, orden fijo de boleta (no por votos) y actualizado
+       in-place — ver comentario de filaConcejales en graficos.js. */
     const cc = {};
-    if (cfg) {
-      Object.entries(cfg.listas).forEach(([n, l]) => {
-        l.candidatos.forEach((nombre, i) => { cc[`${n}·${nombre}`] = { etiqueta: nombre, valor: 0, lista: +n, opcion: i + 1 }; });
-      });
-    }
     deCategoria("concejal").forEach(f => {
-      const k = f.opcion ? `${f.lista}·${f.etiqueta}` : (f.lista ? "Lista " + f.lista : "NS/NC");
-      cc[k] = { etiqueta: f.etiqueta, valor: Number(f.valor), lista: f.lista, opcion: f.opcion };
+      const k = f.opcion ? `${f.lista}·${f.etiqueta}` : "blanco";
+      cc[k] = { valor: Number(f.valor) };
     });
-    const todos = Object.values(cc).sort((a, b) => b.valor - a.valor);
-    filaResultados("#rConcejo", todos.map(f => ({
-      etiqueta: f.etiqueta, valor: f.valor, color: colorLista(f.lista),
-      foto: cfg && f.opcion && cfg.listas[f.lista] && cfg.listas[f.lista].fotos ? cfg.listas[f.lista].fotos[f.opcion - 1] : null
-    })));
+    filaConcejales("#rConcejo", cfg, cc);
 
     const COLOR_SEXO = { Femenino: "#2a78d6", Masculino: "#eb6834" };
     filaStats("#rSexo", deCategoria("sexo").map(f => ({ etiqueta: f.etiqueta, valor: Number(f.valor), color: COLOR_SEXO[f.etiqueta] || GRIS })));
