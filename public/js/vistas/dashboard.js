@@ -24,6 +24,9 @@ export async function iniciar(distrito) {
     const c = cfg && cfg.intendentes.find(x => x.nombre === nombre);
     return c ? c.color : GRIS;
   }
+  function colorLista(n) {
+    return (cfg && cfg.listas[n] && cfg.listas[n].color) || GRIS;
+  }
   suscribirRespuestas(distrito, snap => {
     const filas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     $("#kTotal").textContent = filas.length;
@@ -34,14 +37,22 @@ export async function iniciar(distrito) {
       foto: cfg && (cfg.intendentes.find(c => c.nombre === nombre) || {}).foto
     })));
 
-    /* Agrupado por lista, orden fijo de boleta (no por votos) y actualizado
-       in-place — ver comentario de filaConcejales en graficos.js. */
     const cc = {};
     filas.forEach(f => {
       const k = f.concejal_nombre ? `${f.junta_lista}·${f.concejal_nombre}` : "blanco";
-      if (!cc[k]) cc[k] = { total: 0 };
+      if (!cc[k]) cc[k] = { total: 0, etiqueta: f.concejal_nombre, lista: f.junta_lista, opcion: f.concejal_opcion };
       cc[k].total++;
     });
+
+    /* Fila principal: ranking de los 12 más votados de todas las listas. */
+    const top12 = Object.values(cc).filter(v => v.etiqueta).sort((a, b) => b.total - a.total).slice(0, 12);
+    filaResultados("#chConcejoTop", top12.map(v => ({
+      etiqueta: v.etiqueta, valor: v.total, color: colorLista(v.lista),
+      foto: cfg && v.opcion && cfg.listas[v.lista] && cfg.listas[v.lista].fotos ? cfg.listas[v.lista].fotos[v.opcion - 1] : null
+    })));
+
+    /* Debajo: todos, agrupados por lista, orden fijo de boleta (no por
+       votos) y actualizados in-place — ver comentario en graficos.js. */
     filaConcejales("#chConcejo", cfg, cc);
 
     const cs = cuenta(filas, "sexo");

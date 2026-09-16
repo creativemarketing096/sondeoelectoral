@@ -19,6 +19,9 @@ export async function iniciar(distrito) {
     const c = cfg && cfg.intendentes.find(x => x.lista === lista);
     return c ? c.color : GRIS;
   }
+  function colorLista(n) {
+    return (cfg && cfg.listas[n] && cfg.listas[n].color) || GRIS;
+  }
   async function actualizar() {
     let filas;
     try { filas = await obtenerResultadosPublicos(distrito); } catch (e) { return; }
@@ -32,13 +35,21 @@ export async function iniciar(distrito) {
       foto: cfg && (cfg.intendentes.find(c => c.lista === f.lista) || {}).foto
     })));
 
-    /* Agrupado por lista, orden fijo de boleta (no por votos) y actualizado
-       in-place — ver comentario de filaConcejales en graficos.js. */
     const cc = {};
     deCategoria("concejal").forEach(f => {
       const k = f.opcion ? `${f.lista}·${f.etiqueta}` : "blanco";
-      cc[k] = { valor: Number(f.valor) };
+      cc[k] = { valor: Number(f.valor), etiqueta: f.opcion ? f.etiqueta : null, lista: f.lista, opcion: f.opcion };
     });
+
+    /* Fila principal: ranking de los 12 más votados de todas las listas. */
+    const top12 = Object.values(cc).filter(v => v.etiqueta).sort((a, b) => b.valor - a.valor).slice(0, 12);
+    filaResultados("#rConcejoTop", top12.map(v => ({
+      etiqueta: v.etiqueta, valor: v.valor, color: colorLista(v.lista),
+      foto: cfg && v.opcion && cfg.listas[v.lista] && cfg.listas[v.lista].fotos ? cfg.listas[v.lista].fotos[v.opcion - 1] : null
+    })));
+
+    /* Debajo: todos, agrupados por lista, orden fijo de boleta (no por
+       votos) y actualizados in-place — ver comentario en graficos.js. */
     filaConcejales("#rConcejo", cfg, cc);
 
     const COLOR_SEXO = { Femenino: "#2a78d6", Masculino: "#eb6834" };
