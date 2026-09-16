@@ -36,9 +36,21 @@ export async function iniciar(distrito) {
       foto: cfg && (cfg.intendentes.find(c => c.lista === f.lista) || {}).foto
     })));
 
-    const top = deCategoria("concejal").sort((a, b) => b.valor - a.valor).slice(0, 12);
-    filaResultados("#rConcejo", top.map(f => ({
-      etiqueta: f.etiqueta, valor: Number(f.valor), color: colorLista(f.lista),
+    /* Arranca con todos los concejales de todas las listas en 0 votos, para
+       que se vean los 60 (o los que sean) y no solo un top recortado. */
+    const cc = {};
+    if (cfg) {
+      Object.entries(cfg.listas).forEach(([n, l]) => {
+        l.candidatos.forEach((nombre, i) => { cc[`${n}·${nombre}`] = { etiqueta: nombre, valor: 0, lista: +n, opcion: i + 1 }; });
+      });
+    }
+    deCategoria("concejal").forEach(f => {
+      const k = f.opcion ? `${f.lista}·${f.etiqueta}` : (f.lista ? "Lista " + f.lista : "NS/NC");
+      cc[k] = { etiqueta: f.etiqueta, valor: Number(f.valor), lista: f.lista, opcion: f.opcion };
+    });
+    const todos = Object.values(cc).sort((a, b) => b.valor - a.valor);
+    filaResultados("#rConcejo", todos.map(f => ({
+      etiqueta: f.etiqueta, valor: f.valor, color: colorLista(f.lista),
       foto: cfg && f.opcion && cfg.listas[f.lista] && cfg.listas[f.lista].fotos ? cfg.listas[f.lista].fotos[f.opcion - 1] : null
     })));
 
