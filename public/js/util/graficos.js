@@ -20,7 +20,7 @@ export function filaResultados(id, items) {
     const pct = Math.round(i.valor / total * 100);
     const color = colorVisible(i.color);
     return `<div class="resultado-candidato" style="border-top-color:${color}">
-      <div class="foto-resultado" ${i.foto ? `style="background-image:url('${i.foto}')"` : ""}>${i.foto ? "" : iniciales(i.etiqueta)}</div>
+      <div class="foto-resultado" ${i.foto ? `style="background-image:url('${i.foto.replace(/'/g, "%27")}')"` : ""}>${i.foto ? "" : iniciales(i.etiqueta)}</div>
       <b class="pct-resultado" style="color:${color}">${pct}%</b>
       <span class="nombre-resultado">${i.etiqueta}</span>
       <span class="votos-resultado">${i.valor} voto${i.valor === 1 ? "" : "s"}</span>
