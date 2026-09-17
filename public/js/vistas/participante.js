@@ -53,10 +53,11 @@ export function iniciar(distrito) {
     const el = $("#temporizador"), reloj = $("#temporizadorReloj"), etq = $("#temporizadorEtq");
     el.classList.remove("oculto");
 
+    let intervalo = null;
     function actualizar() {
       const restante = cierre - Date.now();
       if (restante <= 0) {
-        clearInterval(intervalo);
+        if (intervalo) clearInterval(intervalo);
         el.classList.add("cerrado");
         etq.textContent = "Participación cerrada";
         reloj.textContent = "La votación de este distrito ya terminó.";
@@ -72,7 +73,7 @@ export function iniciar(distrito) {
         : `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     }
     actualizar();
-    const intervalo = setInterval(actualizar, 1000);
+    intervalo = setInterval(actualizar, 1000);
   }
 
   function bloquearParticipacion() {
