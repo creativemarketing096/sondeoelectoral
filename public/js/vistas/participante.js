@@ -77,6 +77,7 @@ export function iniciar(distrito) {
 
   function bloquearParticipacion() {
     cerrado = true;
+    $("#cierreGrande").classList.remove("oculto");
     $("#ci").disabled = true;
     $("#ciEstado").className = "aviso malo";
     $("#ciEstado").textContent = "La participación de este distrito ya cerró.";
