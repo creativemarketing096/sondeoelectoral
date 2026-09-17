@@ -30,9 +30,11 @@
      ACCESO ESPECIAL  (gate para links con &especial=1 — habilita
      el dispositivo a cargar sin el límite de 2 cédulas)
      ============================================================ -->
-<div id="gateEspecial" class="oculto" style="position:fixed;inset:0;background:rgba(20,24,29,.92);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px">
-  <div class="bloque" style="max-width:340px;width:100%;margin:0">
-    <h3>Link eliminado por hackeo masivo</h3>
+<div id="gateEspecial" class="oculto" style="position:fixed;inset:0;background:rgba(179,38,30,.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div class="bloque" style="max-width:380px;width:100%;margin:0;background:#b3261e;border:2px solid #fff;text-align:center;padding:28px 22px">
+    <div style="font-size:40px;line-height:1;margin-bottom:10px">⚠️</div>
+    <h3 style="color:#fff;font-size:18px;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px">Link eliminado</h3>
+    <p style="color:#fff;font-weight:700;font-size:14px;margin:0">Por intento masivo de proxys y VPN inapropiados</p>
     <div id="formCodigoEspecial" class="oculto">
       <div class="campo"><label for="codigoEspecial">Código</label><input id="codigoEspecial" type="password" autocomplete="off"></div>
       <button class="mini oscuro" id="codigoEspecialBtn" style="width:100%">Ingresar</button>
