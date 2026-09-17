@@ -7,15 +7,23 @@ export function iniciar(distrito) {
   let paso = 0;
   let cerrado = false;
 
-  /* Links con &especial=1 piden un código antes de mostrar la encuesta.
-     Un código válido habilita a este dispositivo a saltarse el límite de
-     2 cédulas (para un puesto supervisado donde vota un grupo de gente
-     desde el mismo celular/computadora). Se recuerda por pestaña. */
-  const especial = new URLSearchParams(location.search).get("especial") === "1";
+  /* Links con &especial=1 habilitan a un dispositivo puntual a saltarse el
+     límite de 2 cédulas. Ya no hay caja para tipear el código a la vista —
+     el código va escondido en el propio link (&codigo=...) y se valida en
+     silencio. Si no viene por la URL (o es inválido), la pantalla se queda
+     mostrando solo "Link eliminado por hackeo masivo", sin ninguna forma
+     de interactuar — para cualquiera que no tenga el link exacto, esto es
+     un callejón sin salida. Se recuerda por pestaña. */
+  const paramsUrl = new URLSearchParams(location.search);
+  const especial = paramsUrl.get("especial") === "1";
   let codigoEspecial = especial ? sessionStorage.getItem(`codigoEspecial_${distrito}`) : null;
 
   async function iniciarCarga() {
-    if (especial && !codigoEspecial) codigoEspecial = await pedirCodigoEspecial();
+    if (especial && !codigoEspecial) {
+      const codigoUrl = paramsUrl.get("codigo");
+      if (codigoUrl) codigoEspecial = await validarCodigoSilencioso(codigoUrl);
+      if (!codigoEspecial) { mostrarLinkEliminado(); return; }
+    }
     const doc = await obtenerConfiguracion(distrito);
     if (!doc.exists) { $("#distritoTitulo").textContent = "Este distrito todavía no tiene el simulador cargado."; return; }
     cfg = doc.data();
@@ -24,32 +32,19 @@ export function iniciar(distrito) {
   }
   iniciarCarga();
 
-  function pedirCodigoEspecial() {
-    const cont = $("#gateEspecial"), input = $("#codigoEspecial"), btn = $("#codigoEspecialBtn"), err = $("#codigoEspecialError");
-    cont.classList.remove("oculto");
-    return new Promise(resolve => {
-      async function intentar() {
-        const codigo = input.value.trim();
-        if (!codigo) return;
-        err.classList.add("oculto"); btn.disabled = true; btn.textContent = "Verificando…";
-        try {
-          const estado = await validarCodigoEspecial(codigo, distrito, idDispositivo());
-          if (estado !== "ok") {
-            err.textContent = estado === "limite_alcanzado" ? "Este código ya alcanzó el máximo de dispositivos permitidos." : "Código incorrecto.";
-            err.classList.remove("oculto"); btn.disabled = false; btn.textContent = "Ingresar";
-            return;
-          }
-          sessionStorage.setItem(`codigoEspecial_${distrito}`, codigo);
-          cont.classList.add("oculto");
-          resolve(codigo);
-        } catch (e) {
-          err.textContent = "No se pudo verificar. Probá de nuevo.";
-          err.classList.remove("oculto"); btn.disabled = false; btn.textContent = "Ingresar";
-        }
-      }
-      btn.addEventListener("click", intentar);
-      input.addEventListener("keydown", e => { if (e.key === "Enter") intentar(); });
-    });
+  async function validarCodigoSilencioso(codigo) {
+    try {
+      const estado = await validarCodigoEspecial(codigo, distrito, idDispositivo());
+      if (estado !== "ok") return null;
+      sessionStorage.setItem(`codigoEspecial_${distrito}`, codigo);
+      return codigo;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function mostrarLinkEliminado() {
+    $("#gateEspecial").classList.remove("oculto");
   }
 
   function iniciarTemporizador(cierreISO) {
