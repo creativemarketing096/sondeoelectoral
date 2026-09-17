@@ -192,6 +192,7 @@ export function iniciar(distrito) {
       if (r.estado === "dispositivo_limite") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Este celular/computadora ya llegó al máximo de cédulas que puede cargar."; return; }
       if (r.estado === "ip_limite") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Ya se cargaron 2 cédulas desde esta conexión a internet."; return; }
       if (r.estado === "demasiados_intentos") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Demasiados intentos seguidos. Esperá un momento y probá de nuevo."; return; }
+      if (r.estado === "dispositivo_restringido") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Ya no se puede cargar más de 1 voto. Gracias por participar."; return; }
       if (r.estado === "ya_voto") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "Esta cédula ya participó en esta encuesta."; return; }
       if (r.estado !== "ok") { $("#ciEstado").className = "aviso malo"; $("#ciEstado").textContent = "No estás habilitado para participar en esta encuesta."; return; }
       R.padron = r;
@@ -213,7 +214,7 @@ export function iniciar(distrito) {
         dispositivo: idDispositivo(), codigo: codigoEspecial
       });
       if (estado !== "ok") {
-        const mensajes = { cerrado: "La participación de este distrito ya cerró.", ya_voto: "Esta cédula ya participó.", dispositivo_limite: "Este celular/computadora ya llegó al máximo de cédulas que puede cargar.", ip_limite: "Ya se cargaron 2 cédulas desde esta conexión a internet.", demasiados_intentos: "Demasiados intentos seguidos. Esperá un momento y probá de nuevo." };
+        const mensajes = { cerrado: "La participación de este distrito ya cerró.", ya_voto: "Esta cédula ya participó.", dispositivo_limite: "Este celular/computadora ya llegó al máximo de cédulas que puede cargar.", ip_limite: "Ya se cargaron 2 cédulas desde esta conexión a internet.", demasiados_intentos: "Demasiados intentos seguidos. Esperá un momento y probá de nuevo.", dispositivo_restringido: "Ya no se puede cargar más de 1 voto. Gracias por participar." };
         alert(mensajes[estado] || "No se pudo enviar: " + estado);
         $("#pvSiguiente").disabled = false; $("#pvSiguiente").textContent = "Confirmar y enviar"; return;
       }
