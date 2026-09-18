@@ -245,6 +245,150 @@
   </div>
 </div>
 
+<!-- ============================================================
+     VISTA: IN SITU — encuestador
+     (link: pagina.html?vista=insitu&encuestador=TOKEN — sin login)
+     ============================================================ -->
+<div id="vistaInsitu" class="oculto">
+  <div class="titulo">Sondeo Ciudadano — Relevamiento In Situ</div>
+
+  <section class="is-pantalla oculto" id="isError">
+    <p class="aviso malo centro" id="isErrorTexto"></p>
+  </section>
+
+  <section class="is-pantalla oculto" id="isHome">
+    <div class="bloque">
+      <p class="aviso">Distrito</p>
+      <p class="bajada" style="margin:-6px 0 10px;font-weight:700;text-align:left" id="isDistrito">—</p>
+      <p class="aviso">Encuestador</p>
+      <p class="bajada" style="margin:-6px 0 10px;font-weight:700;text-align:left" id="isEncuestador">—</p>
+      <p class="aviso">Barrio</p>
+      <p class="bajada" style="margin:-6px 0 10px;font-weight:700;text-align:left" id="isBarrio">—</p>
+      <div class="kpi"><div class="c"><b id="isContador">0</b><span>Encuestas realizadas</span></div></div>
+      <button class="mini oscuro" id="isNuevaEncuesta" style="width:100%;margin-top:10px">Nueva encuesta</button>
+    </div>
+  </section>
+
+  <section class="is-pantalla oculto" id="isPasoCi">
+    <div class="titulo">Encuesta estadística</div>
+    <p class="bajada">Esto es un relevamiento estadístico, no una votación oficial.</p>
+    <div class="campo">
+      <label for="isCi">Cédula del participante</label>
+      <input id="isCi" inputmode="numeric" autocomplete="off" placeholder="Ej.: 5779795">
+    </div>
+    <p class="aviso" id="isCiEstado"></p>
+    <button class="mini oscuro" id="isCiVerificar" style="width:100%">Verificar</button>
+  </section>
+
+  <section class="is-pantalla oculto" id="isPasoIntendentes">
+    <div class="titulo">¿A quién votarías para intendente?</div>
+    <div class="grilla" id="isIntendentes"></div>
+  </section>
+
+  <section class="is-pantalla oculto" id="isPasoListas">
+    <div class="titulo">Listas a Junta Municipal</div>
+    <div class="grilla listas" id="isListas"></div>
+  </section>
+
+  <section class="is-pantalla oculto" id="isPasoConcejales">
+    <div class="titulo" id="isTituloConcejales">Candidatos a Junta Municipal</div>
+    <div class="grilla concejales" id="isConcejales"></div>
+  </section>
+
+  <section class="is-pantalla oculto" id="isPasoConfirmar">
+    <div class="titulo">Confirmar respuesta</div>
+    <div class="bloque">
+      <p class="aviso">Intendente</p>
+      <p class="bajada" style="margin:-6px 0 10px;font-weight:700;text-align:left" id="isPrevIntendente"></p>
+      <p class="aviso">Concejal / Lista</p>
+      <p class="bajada" style="margin:-6px 0 10px;font-weight:700;text-align:left" id="isPrevConcejal"></p>
+    </div>
+    <button class="mini oscuro" id="isConfirmar" style="width:100%">Confirmar y enviar</button>
+  </section>
+
+  <section class="is-pantalla oculto" id="isGracias">
+    <div class="titulo">¡Gracias por participar!</div>
+    <button class="mini oscuro" id="isVolverHome" style="width:100%">Volver</button>
+  </section>
+
+  <div style="padding:10px 12px">
+    <button class="mini" id="isAtras" type="button">Atrás</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     VISTA: ENCUESTADORES IN SITU — admin
+     (link: pagina.html?vista=encuestadores&distrito=X)
+     ============================================================ -->
+<div id="vistaEncuestadores" class="oculto">
+  <div class="titulo">Encuestadores In Situ — <span id="encTituloDistrito"></span></div>
+
+  <div class="bloque">
+    <h3>Barrios</h3>
+    <table class="tabla" id="encTablaBarrios">
+      <thead><tr><th>Barrio</th><th>Encuestador</th><th>Meta</th><th>Realizadas</th><th>Pendientes</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <form id="encFormBarrioAgregar" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <input id="encBarrioNombre" placeholder="Nombre del barrio" required style="flex:1;min-width:160px">
+      <input id="encBarrioMeta" type="number" min="0" placeholder="Meta de encuestas" style="width:150px">
+      <button class="mini oscuro" type="submit">Agregar barrio</button>
+    </form>
+  </div>
+
+  <div class="bloque">
+    <h3>Encuestadores <button class="mini" id="encAsignarAleatorio" type="button" style="float:right">Asignar barrios aleatoriamente</button></h3>
+    <table class="tabla" id="encTabla">
+      <thead><tr><th>Nombre</th><th>Apellido</th><th>Cédula</th><th>Barrio</th><th>Estado</th><th>Encuestas</th><th>Link</th><th>Acciones</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="bloque">
+    <h3>Agregar encuestador</h3>
+    <form id="encFormAgregar">
+      <div class="campo"><label for="encFormNombre">Nombre</label><input id="encFormNombre" required></div>
+      <div class="campo"><label for="encFormApellido">Apellido</label><input id="encFormApellido" required></div>
+      <div class="campo"><label for="encFormCedula">Cédula</label><input id="encFormCedula" required></div>
+      <div class="campo"><label for="encFormBarrio">Barrio asignado</label><select id="encFormBarrio"></select></div>
+      <button class="mini oscuro" type="submit" style="width:100%">Guardar encuestador</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     VISTA: DASHBOARD IN SITU — admin
+     (link: pagina.html?vista=dashboardinsitu&distrito=X)
+     ============================================================ -->
+<div id="vistaDashboardInsitu" class="oculto">
+  <div class="titulo">Dashboard In Situ — <span id="disTituloDistrito"></span></div>
+
+  <div class="bloque" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+    <div class="campo" style="flex:1;min-width:160px"><label for="disFiltroEncuestador">Encuestador</label><select id="disFiltroEncuestador"></select></div>
+    <div class="campo" style="flex:1;min-width:160px"><label for="disFiltroBarrio">Barrio</label><select id="disFiltroBarrio"></select></div>
+    <div class="campo"><label for="disFiltroDesde">Desde</label><input type="date" id="disFiltroDesde"></div>
+    <div class="campo"><label for="disFiltroHasta">Hasta</label><input type="date" id="disFiltroHasta"></div>
+    <button class="mini" id="disExportarCsv" type="button">Exportar CSV</button>
+    <button class="mini" id="disExportarExcel" type="button">Exportar Excel</button>
+  </div>
+
+  <div class="kpi"><div class="c"><b id="disTotal">0</b><span>Encuestas totales</span></div></div>
+
+  <div class="bloque"><h3>Intendencia</h3><div id="disIntendente" class="grafico"></div></div>
+  <div class="bloque"><h3>Junta Municipal — por lista</h3><div id="disConcejo" class="grafico"></div></div>
+
+  <div class="bloque">
+    <h3>Por encuestador</h3>
+    <table class="tabla" id="disTablaEncuestador"><thead><tr><th>Encuestador</th><th>Encuestas</th></tr></thead><tbody></tbody></table>
+  </div>
+  <div class="bloque">
+    <h3>Cobertura territorial (por barrio)</h3>
+    <table class="tabla" id="disTablaBarrio"><thead><tr><th>Barrio</th><th>Meta</th><th>Realizadas</th><th>Pendientes</th></tr></thead><tbody></tbody></table>
+  </div>
+  <div class="bloque"><h3>Por hora</h3><div id="disPorHora" class="grafico"></div></div>
+  <div class="bloque"><h3>Por día</h3><div id="disPorDia" class="grafico"></div></div>
+</div>
+
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

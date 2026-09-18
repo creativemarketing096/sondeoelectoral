@@ -14,7 +14,10 @@ const VISTAS = {
   config: () => import("./vistas/config.js"),
   dashboard: () => import("./vistas/dashboard.js"),
   indice: () => import("./vistas/indice.js"),
-  resultados: () => import("./vistas/resultados.js")
+  resultados: () => import("./vistas/resultados.js"),
+  insitu: () => import("./vistas/insitu.js"),
+  encuestadores: () => import("./vistas/encuestadores.js"),
+  dashboardinsitu: () => import("./vistas/dashboard-insitu.js")
 };
 
 const cargarVista = VISTAS[VISTA] || VISTAS.participante;

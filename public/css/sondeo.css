@@ -137,3 +137,4 @@ details.bloque table{margin-top:12px}
 .tabs button[aria-pressed="true"]{background:var(--tinta);color:#fff}
 .centro{text-align:center}
 .oculto{display:none!important}
+.is-pantalla{padding:0 12px}
